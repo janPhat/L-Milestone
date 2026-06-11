@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "l-health",
+  "account_id": "cb9e6fc3fefc61583fe8d2b62b5940e3",
   "main": ".open-next/worker.js",
   "compatibility_date": "2025-03-01",
   // nodejs_compat + global_fetch_strictly_public are both required by OpenNext.
@@ -15,9 +16,7 @@
     {
       "binding": "DB",
       "database_name": "l-health",
-      // Local dev uses a Miniflare SQLite store; the real id from
-      // `wrangler d1 create l-health` is filled in before deploy (Phase 8).
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "2ec136b2-4c86-43bd-b690-20f2a36034a7",
       "migrations_dir": "drizzle/migrations"
     }
   ],
