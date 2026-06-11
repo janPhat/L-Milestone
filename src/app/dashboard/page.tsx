@@ -12,14 +12,17 @@ import { GoalsDialog } from "@/components/dashboard/goals-dialog";
 // happen in getDashboardData(); each section is a client component wired to a
 // server action that revalidates this route.
 export default async function DashboardPage() {
-  const { user, day, goals, milestones, week, calendar } = await getDashboardData();
+  const { user, day, goals, milestones, week, calendar, nowLabel } =
+    await getDashboardData();
 
   return (
     <main className="mx-auto w-full max-w-md space-y-4 p-4 pb-16">
       <header className="flex items-center justify-between pt-2">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">L Health</h1>
-          <p className="text-xs text-muted-foreground">{day.date}</p>
+          <p className="text-xs text-muted-foreground">
+            {day.date} · {nowLabel}
+          </p>
         </div>
         <GoalsDialog goals={goals} />
       </header>

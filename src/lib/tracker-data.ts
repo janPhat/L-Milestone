@@ -18,9 +18,26 @@ import {
 } from "@/lib/domain/tracker";
 import type { TrackerState } from "@/lib/domain/types";
 
-/** Server-side "today" as a UTC ISO date (matches the domain date helpers). */
+/**
+ * The app's display timezone. L Health is invite-only / single-user, so the
+ * day boundary and clock are pinned to Bangkok rather than UTC.
+ */
+export const APP_TIMEZONE = "Asia/Bangkok";
+
+/** Current calendar date in APP_TIMEZONE as an ISO YYYY-MM-DD string. */
 export function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
+  // en-CA renders as YYYY-MM-DD.
+  return new Date().toLocaleDateString("en-CA", { timeZone: APP_TIMEZONE });
+}
+
+/** Current local time as a 24-hour HH:mm string in APP_TIMEZONE. */
+export function nowTimeLabel(): string {
+  return new Date().toLocaleTimeString("en-GB", {
+    timeZone: APP_TIMEZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
 }
 
 /** Loads every row for a user and assembles a TrackerState. */
@@ -53,6 +70,7 @@ export async function getDashboardData() {
   return {
     user,
     today,
+    nowLabel: nowTimeLabel(),
     goals: state.goals,
     day: summarizeDay(state, today),
     week: summarizeWeek(state, today),

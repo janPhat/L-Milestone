@@ -24,11 +24,14 @@ export default function SignUpPage() {
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    const inviteCode = String(data.get("inviteCode") ?? "").trim();
     setPending(true);
     const { error } = await authClient.signUp.email({
       name: String(data.get("name") ?? ""),
       email: String(data.get("email") ?? ""),
       password: String(data.get("password") ?? ""),
+      // Invite-only gate — validated server-side in the auth before-hook.
+      fetchOptions: { headers: { "x-invite-code": inviteCode } },
     });
     setPending(false);
     if (error) {
@@ -45,10 +48,14 @@ export default function SignUpPage() {
       <Card>
         <CardHeader>
           <CardTitle>Create your account</CardTitle>
-          <CardDescription>Start tracking water, exercise, and goals.</CardDescription>
+          <CardDescription>L Health is invite-only — you&apos;ll need an invite code.</CardDescription>
         </CardHeader>
         <form onSubmit={onSubmit}>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="inviteCode">Invite code</Label>
+              <Input id="inviteCode" name="inviteCode" autoComplete="off" required />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
               <Input id="name" name="name" autoComplete="name" required />
