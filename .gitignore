@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Next.js / build output
+.next/
+out/
+dist/
+build/
+
+# OpenNext / Cloudflare
+.open-next/
+.wrangler/
+.dev.vars
+.dev.vars.*
+
+# Env (never commit real values)
+.env
+.env.local
+.env.*.local
+
+# Swift / SPM (legacy — pending removal in Phase 7)
+.build/
+
+# External reference projects (their own git repos, not part of this build)
+references/
+
+# Tests / coverage
+coverage/
+
+# Editor / OS
+.DS_Store
+*.log
