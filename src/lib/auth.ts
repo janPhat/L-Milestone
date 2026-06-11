@@ -27,7 +27,10 @@ export function createAuth(
 
   return betterAuth({
     baseURL,
-    secret: env?.BETTER_AUTH_SECRET,
+    // Runtime always supplies env.BETTER_AUTH_SECRET. The fallback only applies
+    // to the env-less CLI schema-generation / build-eval path, which never
+    // serves requests, so the value is inert there.
+    secret: env?.BETTER_AUTH_SECRET ?? "lhealth-schema-gen-placeholder-secret",
     ...withCloudflare(
       {
         autoDetectIpAddress: false,
