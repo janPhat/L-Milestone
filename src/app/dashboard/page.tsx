@@ -1,46 +1,42 @@
 import { getDashboardData } from "@/lib/tracker-data";
 import { SignOutButton } from "@/components/sign-out-button";
-import { QuickAddWater } from "@/components/quick-add-water";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { WaterCard } from "@/components/dashboard/water-card";
+import { ExerciseCard } from "@/components/dashboard/exercise-card";
+import { BodyStatsCard } from "@/components/dashboard/body-stats-card";
+import { WeeklyChart } from "@/components/dashboard/weekly-chart";
+import { WeekCalendar } from "@/components/dashboard/week-calendar";
+import { CheatLogCard } from "@/components/dashboard/cheat-log-card";
+import { GoalsDialog } from "@/components/dashboard/goals-dialog";
 
-// getDashboardData() runs requireUser() (real session check against D1) and the
-// Phase-4 summaries over the user's D1 rows. The Phase-6 UI builds on this.
+// Real session enforcement + the Phase-4 summaries over the user's D1 rows
+// happen in getDashboardData(); each section is a client component wired to a
+// server action that revalidates this route.
 export default async function DashboardPage() {
-  const { user, day, goals, milestones } = await getDashboardData();
-  const waterPct = Math.round(day.waterProgress * 100);
+  const { user, day, goals, milestones, week, calendar } = await getDashboardData();
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-6 p-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Today</CardTitle>
-          <CardDescription>{day.date}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <p className="text-sm">
-            Water: <span className="font-medium">{day.waterML}</span> / {goals.waterML} ml ({waterPct}%)
-          </p>
-          <p className="text-sm">
-            Glasses: <span className="font-medium">{milestones.completedGlasses}</span> /{" "}
-            {milestones.totalGlasses}
-          </p>
-          <p className="text-sm">
-            Exercise: <span className="font-medium">{day.exerciseMinutes}</span> /{" "}
-            {goals.exerciseMinutes} min
-          </p>
-          <p className="text-sm text-muted-foreground">{day.nextNudge}</p>
-          <QuickAddWater />
-        </CardContent>
-      </Card>
+    <main className="mx-auto w-full max-w-md space-y-4 p-4 pb-16">
+      <header className="flex items-center justify-between pt-2">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">L Health</h1>
+          <p className="text-xs text-muted-foreground">{day.date}</p>
+        </div>
+        <GoalsDialog goals={goals} />
+      </header>
 
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{user.email}</p>
+      <p className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
+        {day.nextNudge}
+      </p>
+
+      <WaterCard day={day} goals={goals} milestones={milestones} />
+      <ExerciseCard day={day} goals={goals} />
+      <WeeklyChart week={week} goals={goals} />
+      <WeekCalendar calendar={calendar} />
+      <BodyStatsCard day={day} goals={goals} />
+      <CheatLogCard calendar={calendar} />
+
+      <div className="flex items-center justify-between pt-2">
+        <span className="text-xs text-muted-foreground">{user.email}</span>
         <SignOutButton />
       </div>
     </main>

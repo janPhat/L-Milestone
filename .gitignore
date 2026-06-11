@@ -31,3 +31,6 @@ coverage/
 # Editor / OS
 .DS_Store
 *.log
+
+# Playwright MCP scratch artifacts
+.playwright-mcp/
