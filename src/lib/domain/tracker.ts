@@ -302,6 +302,30 @@ export function summarizeMovementWeek(
 }
 
 /**
+ * Remaining distance from the current value (or the baseline, when nothing has
+ * been logged yet) down to the target, rounded to one decimal and clamped at 0
+ * once the target is reached. Powers the weekly body check's "X to reach
+ * target" line. Assumes reduction goals (target ≤ current), as weight/waist are.
+ */
+export function amountToTarget(
+  current: number | undefined,
+  baseline: number,
+  target: number,
+): number {
+  const value = current ?? baseline;
+  const remaining = Math.round((value - target) * 10) / 10;
+  return remaining > 0 ? remaining : 0;
+}
+
+/**
+ * True only on the Monday of the week containing `today` — the day the weekly
+ * body-stats record is due. Drives the Monday auto-popup on the dashboard.
+ */
+export function isBodyCheckDay(today: string): boolean {
+  return daysInWeekStartingMonday(today)[0] === today;
+}
+
+/**
  * Tap-to-toggle for the movement tracker: re-tapping the active status clears
  * it (returns null); tapping a different one overwrites.
  */

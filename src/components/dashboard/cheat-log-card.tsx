@@ -2,9 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
-import type { CalendarDay } from "@/lib/domain/types";
-import { addCheat } from "@/lib/actions";
+import { Plus, X } from "lucide-react";
+import { addCheat, deleteCheat } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -35,19 +34,28 @@ import {
 
 type CheatType = "meal" | "drink";
 
-export function CheatLogCard({ calendar }: { calendar: CalendarDay[] }) {
+type CheatRow = { id: number; date: string; type: CheatType; label: string };
+
+export function CheatLogCard({ cheats }: { cheats: CheatRow[] }) {
   const [pending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<CheatType>("meal");
   const [label, setLabel] = useState("");
 
-  const days = calendar.filter((day) => day.cheatLabels.length > 0);
+  // `cheats` arrives sorted by date then id; group into one row per day.
+  const byDate = new Map<string, CheatRow[]>();
+  for (const cheat of cheats) {
+    const list = byDate.get(cheat.date);
+    if (list) list.push(cheat);
+    else byDate.set(cheat.date, [cheat]);
+  }
+  const days = [...byDate.values()];
 
-  function run(fn: () => Promise<void>, ok: string) {
+  function remove(id: number) {
     startTransition(async () => {
       try {
-        await fn();
-        toast.success(ok);
+        await deleteCheat({ id });
+        toast.success("Cheat removed");
       } catch {
         toast.error("Something went wrong");
       }
@@ -86,16 +94,25 @@ export function CheatLogCard({ calendar }: { calendar: CalendarDay[] }) {
           </p>
         ) : (
           <ul className="flex flex-col gap-3">
-            {days.map((day) => (
-              <li key={day.date} className="flex flex-col gap-1.5">
+            {days.map((dayCheats) => (
+              <li key={dayCheats[0].date} className="flex flex-col gap-1.5">
                 <div className="flex flex-wrap gap-1.5">
-                  {day.cheatLabels.map((cheatLabel, index) => (
+                  {dayCheats.map((cheat) => (
                     <Badge
-                      key={`${day.date}-${index}`}
+                      key={cheat.id}
                       variant="outline"
-                      className="border-ring text-ring text-sm"
+                      className="border-ring text-ring text-sm gap-1 pr-1"
                     >
-                      {cheatLabel}
+                      {cheat.label}
+                      <button
+                        type="button"
+                        aria-label={`Remove ${cheat.label}`}
+                        disabled={pending}
+                        onClick={() => remove(cheat.id)}
+                        className="rounded-full p-0.5 text-ring/70 transition-colors hover:bg-ring/10 hover:text-ring focus-visible:ring-[2px] focus-visible:ring-ring/50 focus-visible:outline-none disabled:opacity-50"
+                      >
+                        <X className="size-3" />
+                      </button>
                     </Badge>
                   ))}
                 </div>

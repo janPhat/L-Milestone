@@ -199,6 +199,13 @@ describe("tracker domain", () => {
     expect(tracker.nextWaterGlasses(1, 1)).toBe(0); // only glass filled -> clear to 0
   });
 
+  test("amount to target > clamped distance from current (or baseline) down to target", () => {
+    expect(tracker.amountToTarget(32, 31, 28)).toBe(4); // waist 32 -> 28
+    expect(tracker.amountToTarget(undefined, 60, 55)).toBe(5); // no weight logged -> use baseline
+    expect(tracker.amountToTarget(59.8, 60, 55)).toBe(4.8); // one-decimal rounding
+    expect(tracker.amountToTarget(54, 60, 55)).toBe(0); // already below target -> reached
+  });
+
   test("movement week > maps statuses onto Mon-Sun; past empty days default to skip", () => {
     const week = tracker.summarizeMovementWeek(
       [{ date: "2026-06-08", status: "exercise" }],
@@ -214,6 +221,12 @@ describe("tracker domain", () => {
       "exercise", "skip", "skip", "skip", null, null, null,
     ]);
     expect(week.filter((d) => d.isToday).map((d) => d.date)).toEqual(["2026-06-12"]);
+  });
+
+  test("body check day > true only on the Monday of the week", () => {
+    expect(tracker.isBodyCheckDay("2026-06-08")).toBe(true); // Monday
+    expect(tracker.isBodyCheckDay("2026-06-12")).toBe(false); // Friday
+    expect(tracker.isBodyCheckDay("2026-06-14")).toBe(false); // Sunday
   });
 
   test("movement toggle > re-tapping the active status clears it, a new one overwrites", () => {

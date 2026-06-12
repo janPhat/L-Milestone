@@ -12,6 +12,7 @@ import {
 import { requireUser } from "@/lib/dal";
 import { buildTrackerState } from "@/lib/domain/build-state";
 import {
+  isBodyCheckDay,
   summarizeCalendar,
   summarizeDay,
   summarizeMovementWeek,
@@ -72,6 +73,18 @@ export async function getDashboardData() {
     .select({ date: movementDays.date, status: movementDays.status })
     .from(movementDays)
     .where(eq(movementDays.userId, user.id));
+  const cheatRows = await db
+    .select({
+      id: cheatLogs.id,
+      date: cheatLogs.date,
+      type: cheatLogs.type,
+      label: cheatLogs.label,
+    })
+    .from(cheatLogs)
+    .where(eq(cheatLogs.userId, user.id));
+
+  const calendar = summarizeCalendar(state, today);
+  const weekDates = new Set(calendar.map((entry) => entry.date));
 
   return {
     user,
@@ -81,7 +94,12 @@ export async function getDashboardData() {
     day: summarizeDay(state, today),
     week: summarizeWeek(state, today),
     milestones: summarizeWaterMilestones(state, today),
-    calendar: summarizeCalendar(state, today),
+    calendar,
     movement: summarizeMovementWeek(movementRows, today),
+    bodyCheckDay: isBodyCheckDay(today),
+    // The week's cheat rows, carrying their ids so the UI can delete a single one.
+    cheats: cheatRows
+      .filter((cheat) => weekDates.has(cheat.date))
+      .sort((a, b) => (a.date === b.date ? a.id - b.id : a.date < b.date ? -1 : 1)),
   };
 }

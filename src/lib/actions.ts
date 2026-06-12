@@ -231,6 +231,20 @@ export async function addCheat(input: z.input<typeof cheatSchema>) {
   revalidatePath("/dashboard");
 }
 
+const deleteCheatSchema = z.object({ id: z.coerce.number().int().positive() });
+
+export async function deleteCheat(input: z.input<typeof deleteCheatSchema>) {
+  const { id } = deleteCheatSchema.parse(input);
+  const user = await requireUser();
+  const db = await getDb();
+
+  // Scope the delete to the signed-in user so a client can't remove others' rows.
+  await db
+    .delete(cheatLogs)
+    .where(and(eq(cheatLogs.id, id), eq(cheatLogs.userId, user.id)));
+  revalidatePath("/dashboard");
+}
+
 export async function updateGoals(input: z.input<typeof goalsSchema>) {
   const updates = goalsSchema.parse(input);
   const user = await requireUser();

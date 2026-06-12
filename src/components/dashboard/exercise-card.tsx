@@ -9,16 +9,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const WEEKDAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"] as const;
 
-const STATUS_TEXT: Record<MovementStatus, string> = {
-  exercise: "text-orange-500",
-  smallWalk: "text-yellow-400",
-  skip: "text-red-500",
+const STATUS_BG: Record<MovementStatus, string> = {
+  exercise: "bg-orange-500",
+  smallWalk: "bg-yellow-400",
+  skip: "bg-gray-200",
 };
 
 const OPTIONS: { status: MovementStatus; label: string; faded: string }[] = [
   { status: "exercise", label: "Exercise", faded: "bg-orange-500/50" },
   { status: "smallWalk", label: "Small walk", faded: "bg-yellow-400/50" },
-  { status: "skip", label: "Skip", faded: "bg-red-500/50" },
+  { status: "skip", label: "Skip", faded: "bg-gray-200/50" },
 ];
 
 export function ExerciseCard({ movement }: { movement: MovementDay[] }) {
@@ -41,44 +41,24 @@ export function ExerciseCard({ movement }: { movement: MovementDay[] }) {
         <CardTitle>Exercise</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        <div className="flex items-start justify-between">
+        <div className="flex items-center justify-between">
           {movement.map((day, index) => (
             <div
               key={day.date}
-              className="flex flex-col items-center gap-1.5"
               title={`${WEEKDAY_LABELS[index % 7]} — ${day.status ?? "none"}`}
+              className={cn(
+                "flex size-8 items-center justify-center rounded-full text-[10px]",
+                day.status
+                  ? STATUS_BG[day.status]
+                  : cn(
+                      "border border-muted-foreground/30",
+                      day.isToday
+                        ? "font-semibold text-foreground"
+                        : "text-muted-foreground",
+                    ),
+              )}
             >
-              <span
-                className={cn(
-                  "text-[10px]",
-                  day.isToday
-                    ? "font-semibold text-foreground"
-                    : "text-muted-foreground",
-                )}
-              >
-                {WEEKDAY_LABELS[index % 7]}
-              </span>
-              <svg
-                viewBox="0 0 24 24"
-                className={cn(
-                  "size-7",
-                  day.status ? STATUS_TEXT[day.status] : "text-muted-foreground/30",
-                )}
-                aria-hidden="true"
-              >
-                {day.status ? (
-                  <circle cx="12" cy="12" r="7.5" fill="currentColor" />
-                ) : (
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="7"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.75"
-                  />
-                )}
-              </svg>
+              {day.status ? null : WEEKDAY_LABELS[index % 7]}
             </div>
           ))}
         </div>

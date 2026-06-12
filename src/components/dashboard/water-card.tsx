@@ -4,7 +4,6 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 import { setWaterGlasses } from "@/lib/actions";
 import { nextWaterGlasses } from "@/lib/domain/tracker";
-import { cn } from "@/lib/utils";
 import type { WaterMilestonesSummary } from "@/lib/domain/types";
 import {
   Card,
@@ -51,12 +50,7 @@ export function WaterCard({
               disabled={pending}
               aria-label={`Glass ${m.glass}`}
               title={`Glass ${m.glass}`}
-              className={cn(
-                "rounded-full p-1 transition-colors disabled:opacity-50",
-                m.complete
-                  ? "text-chart-1"
-                  : "text-muted-foreground/30 hover:text-chart-1/60",
-              )}
+              className="rounded-full p-1 text-chart-1 transition-colors hover:text-chart-1/70 disabled:opacity-50"
               onClick={() =>
                 run(
                   () =>
@@ -73,7 +67,7 @@ export function WaterCard({
                 aria-hidden="true"
                 fill={m.complete ? "currentColor" : "none"}
                 stroke={m.complete ? "none" : "currentColor"}
-                strokeWidth={1.75}
+                strokeWidth={0.75}
                 strokeLinejoin="round"
               >
                 <path d="M12 2.5C12 2.5 19.5 11 19.5 15.5A7.5 7.5 0 0 1 4.5 15.5C4.5 11 12 2.5 12 2.5Z" />
