@@ -10,7 +10,7 @@ import {
   Label,
 } from "recharts";
 import { Droplet } from "lucide-react";
-import { addHydration, completeMilestone } from "@/lib/actions";
+import { completeMilestone } from "@/lib/actions";
 import { cn } from "@/lib/utils";
 import type { DaySummary, Goals, WaterMilestonesSummary } from "@/lib/domain/types";
 import {
@@ -20,13 +20,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
   ChartContainer,
   type ChartConfig,
 } from "@/components/ui/chart";
-
-const QUICK_ADD_ML = [150, 250, 500] as const;
 
 const chartConfig = {
   value: { label: "Water" },
@@ -114,20 +111,6 @@ export function WaterCard({
             </PolarRadiusAxis>
           </RadialBarChart>
         </ChartContainer>
-
-        <div className="flex gap-2">
-          {QUICK_ADD_ML.map((ml) => (
-            <Button
-              key={ml}
-              variant="secondary"
-              className="flex-1"
-              disabled={pending}
-              onClick={() => run(() => addHydration({ amountML: ml }), `+${ml} ml logged`)}
-            >
-              +{ml} ml
-            </Button>
-          ))}
-        </div>
 
         <div className="flex flex-wrap justify-center gap-1.5">
           {milestones.milestones.map((m) => (
