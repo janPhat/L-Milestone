@@ -23,7 +23,13 @@ function dayOfMonth(date: string): number {
   return Number(date.slice(8, 10));
 }
 
-export function WeekCalendar({ calendar }: { calendar: CalendarDay[] }) {
+export function WeekCalendar({
+  calendar,
+  today,
+}: {
+  calendar: CalendarDay[];
+  today: string;
+}) {
   return (
     <Card>
       <CardHeader>
@@ -34,7 +40,11 @@ export function WeekCalendar({ calendar }: { calendar: CalendarDay[] }) {
           {calendar.map((day, index) => (
             <div
               key={day.date}
-              className="flex flex-col items-center gap-1.5 rounded-md py-2"
+              aria-current={day.date === today ? "date" : undefined}
+              className={cn(
+                "flex flex-col items-center gap-1.5 rounded-md py-2",
+                day.date === today && "bg-accent text-accent-foreground",
+              )}
             >
               <span className="text-[10px] text-muted-foreground">
                 {WEEKDAY_LABELS[index % 7]}
