@@ -3,7 +3,6 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -28,7 +27,6 @@ export function WeekCalendar({ calendar }: { calendar: CalendarDay[] }) {
     <Card>
       <CardHeader>
         <CardTitle>Weekly Preview</CardTitle>
-        <CardDescription>Monday-start view of the last 7 days.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="grid grid-cols-7 gap-1">
