@@ -29,7 +29,7 @@ export function WeekCalendar({ calendar }: { calendar: CalendarDay[] }) {
       <CardHeader>
         <CardTitle>Weekly Preview</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4">
+      <CardContent className="flex flex-col gap-6">
         <div className="grid grid-cols-7 gap-1">
           {calendar.map((day, index) => (
             <div
