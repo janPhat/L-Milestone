@@ -21,7 +21,7 @@ export default async function DashboardPage() {
         <h1 className="text-[40px] font-bold tracking-tight">Hello L!</h1>
       </header>
 
-      <WeekCalendar calendar={calendar} today={today} />
+      <WeekCalendar calendar={calendar} today={today} movement={movement} />
       <WaterCard milestones={milestones} />
       <ExerciseCard movement={movement} />
       <WeeklyChart week={week} goals={goals} />

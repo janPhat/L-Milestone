@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { CalendarDay } from "@/lib/domain/types";
+import type { CalendarDay, MovementDay } from "@/lib/domain/types";
 import { cn } from "@/lib/utils";
 
 const WEEKDAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"] as const;
@@ -26,10 +26,14 @@ function dayOfMonth(date: string): number {
 export function WeekCalendar({
   calendar,
   today,
+  movement,
 }: {
   calendar: CalendarDay[];
   today: string;
+  movement: MovementDay[];
 }) {
+  const statusByDate = new Map(movement.map((m) => [m.date, m.status]));
+
   return (
     <Card className="gap-4">
       <CardHeader className="gap-0">
@@ -62,8 +66,14 @@ export function WeekCalendar({
                 {day.waterComplete && (
                   <span className="size-1.5 rounded-full bg-chart-1" />
                 )}
-                {day.exerciseCompleted && (
+                {statusByDate.get(day.date) === "exercise" && (
                   <span className="size-1.5 rounded-full bg-orange-500" />
+                )}
+                {statusByDate.get(day.date) === "smallWalk" && (
+                  <span className="size-1.5 rounded-full bg-yellow-400" />
+                )}
+                {statusByDate.get(day.date) === "skip" && (
+                  <span className="size-1.5 rounded-full bg-red-500" />
                 )}
                 {day.cheats.length > 0 && (
                   <span className="size-1.5 rounded-full bg-gray-400" />
