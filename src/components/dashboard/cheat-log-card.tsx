@@ -86,7 +86,6 @@ export function CheatLogCard({ calendar }: { calendar: CalendarDay[] }) {
           <ul className="flex flex-col gap-3">
             {days.map((day) => (
               <li key={day.date} className="flex flex-col gap-1.5">
-                <span className="text-sm text-muted-foreground">{day.date}</span>
                 <div className="flex flex-wrap gap-1.5">
                   {day.cheatLabels.map((cheatLabel, index) => (
                     <Badge
