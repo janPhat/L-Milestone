@@ -15,10 +15,10 @@ const STATUS_TEXT: Record<MovementStatus, string> = {
   skip: "text-red-500",
 };
 
-const OPTIONS: { status: MovementStatus; label: string; bg: string; faded: string }[] = [
-  { status: "exercise", label: "Exercise", bg: "bg-orange-500", faded: "bg-orange-500/50" },
-  { status: "smallWalk", label: "Small walk", bg: "bg-yellow-400", faded: "bg-yellow-400/50" },
-  { status: "skip", label: "Skip", bg: "bg-red-500", faded: "bg-red-500/50" },
+const OPTIONS: { status: MovementStatus; label: string; faded: string }[] = [
+  { status: "exercise", label: "Exercise", faded: "bg-orange-500/50" },
+  { status: "smallWalk", label: "Small walk", faded: "bg-yellow-400/50" },
+  { status: "skip", label: "Skip", faded: "bg-red-500/50" },
 ];
 
 export function ExerciseCard({ movement }: { movement: MovementDay[] }) {
@@ -93,7 +93,8 @@ export function ExerciseCard({ movement }: { movement: MovementDay[] }) {
               onClick={() => set(opt.status)}
               className={cn(
                 "flex-1 rounded-md px-2 py-1.5 text-sm text-black transition-colors disabled:opacity-50",
-                todayStatus === opt.status ? `${opt.bg} font-medium` : opt.faded,
+                opt.faded,
+                todayStatus === opt.status && "font-medium",
               )}
             >
               {opt.label}
