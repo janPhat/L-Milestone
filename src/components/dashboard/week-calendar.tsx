@@ -32,7 +32,7 @@ export function WeekCalendar({
 }) {
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="gap-0">
         <CardTitle>Weekly Preview</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">

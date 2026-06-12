@@ -34,7 +34,7 @@ export function WaterCard({
 
   return (
     <Card className="gap-4">
-      <CardHeader>
+      <CardHeader className="gap-0">
         <div className="flex items-baseline justify-between gap-2">
           <CardTitle>Water</CardTitle>
           <CardDescription>
