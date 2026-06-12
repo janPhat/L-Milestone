@@ -72,8 +72,8 @@ export function CheatLogCard({ calendar }: { calendar: CalendarDay[] }) {
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="gap-4">
+      <CardHeader className="gap-0">
         <div className="flex items-baseline justify-between gap-2">
           <CardTitle>Cheat log</CardTitle>
           <CardDescription>Weekly record</CardDescription>
