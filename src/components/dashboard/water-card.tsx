@@ -61,10 +61,12 @@ export function WaterCard({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Water</CardTitle>
-        <CardDescription>
-          {milestones.completedGlasses}/{milestones.totalGlasses} glasses
-        </CardDescription>
+        <div className="flex items-baseline justify-between gap-2">
+          <CardTitle>Water</CardTitle>
+          <CardDescription>
+            {milestones.completedGlasses}/{milestones.totalGlasses} glasses
+          </CardDescription>
+        </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <ChartContainer
