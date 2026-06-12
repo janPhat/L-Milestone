@@ -2,17 +2,10 @@
 
 import { useTransition } from "react";
 import { toast } from "sonner";
-import {
-  RadialBarChart,
-  RadialBar,
-  PolarGrid,
-  PolarRadiusAxis,
-  Label,
-} from "recharts";
 import { setWaterGlasses } from "@/lib/actions";
 import { nextWaterGlasses } from "@/lib/domain/tracker";
 import { cn } from "@/lib/utils";
-import type { DaySummary, Goals, WaterMilestonesSummary } from "@/lib/domain/types";
+import type { WaterMilestonesSummary } from "@/lib/domain/types";
 import {
   Card,
   CardContent,
@@ -20,23 +13,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  ChartContainer,
-  type ChartConfig,
-} from "@/components/ui/chart";
-
-const chartConfig = {
-  value: { label: "Water" },
-  water: { label: "Water", color: "var(--chart-1)" },
-} satisfies ChartConfig;
 
 export function WaterCard({
-  day,
-  goals,
   milestones,
 }: {
-  day: DaySummary;
-  goals: Goals;
   milestones: WaterMilestonesSummary;
 }) {
   const [pending, startTransition] = useTransition();
@@ -52,11 +32,8 @@ export function WaterCard({
     });
   }
 
-  const pct = Math.round(day.waterProgress * 100);
-  const chartData = [{ name: "water", value: pct, fill: "var(--color-water)" }];
-
   return (
-    <Card>
+    <Card className="gap-4">
       <CardHeader>
         <div className="flex items-baseline justify-between gap-2">
           <CardTitle>Water</CardTitle>
@@ -65,53 +42,7 @@ export function WaterCard({
           </CardDescription>
         </div>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <ChartContainer
-          config={chartConfig}
-          className="mx-auto aspect-square max-h-[220px]"
-        >
-          <RadialBarChart
-            data={chartData}
-            startAngle={90}
-            endAngle={90 - (pct / 100) * 360}
-            innerRadius={80}
-            outerRadius={110}
-          >
-            <PolarGrid
-              gridType="circle"
-              radialLines={false}
-              stroke="none"
-              className="first:fill-muted last:fill-background"
-              polarRadius={[86, 74]}
-            />
-            <RadialBar dataKey="value" background cornerRadius={10} />
-            <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
-              <Label
-                content={({ viewBox }) =>
-                  viewBox && "cx" in viewBox ? (
-                    <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle">
-                      <tspan
-                        x={viewBox.cx}
-                        y={viewBox.cy}
-                        className="fill-foreground text-3xl font-bold"
-                      >
-                        {pct}%
-                      </tspan>
-                      <tspan
-                        x={viewBox.cx}
-                        y={(viewBox.cy || 0) + 24}
-                        className="fill-muted-foreground text-sm"
-                      >
-                        {day.waterML} / {goals.waterML} ml
-                      </tspan>
-                    </text>
-                  ) : null
-                }
-              />
-            </PolarRadiusAxis>
-          </RadialBarChart>
-        </ChartContainer>
-
+      <CardContent>
         <div className="flex items-center justify-between">
           {milestones.milestones.map((m) => (
             <button

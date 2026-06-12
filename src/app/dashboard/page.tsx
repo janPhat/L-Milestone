@@ -22,7 +22,7 @@ export default async function DashboardPage() {
       </header>
 
       <WeekCalendar calendar={calendar} today={today} />
-      <WaterCard day={day} goals={goals} milestones={milestones} />
+      <WaterCard milestones={milestones} />
       <ExerciseCard day={day} goals={goals} />
       <WeeklyChart week={week} goals={goals} />
       <BodyStatsCard day={day} goals={goals} />
