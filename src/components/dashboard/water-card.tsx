@@ -111,7 +111,7 @@ export function WaterCard({
           </RadialBarChart>
         </ChartContainer>
 
-        <div className="flex flex-wrap justify-center gap-1.5">
+        <div className="flex items-center justify-between">
           {milestones.milestones.map((m) => (
             <button
               key={m.glass}
