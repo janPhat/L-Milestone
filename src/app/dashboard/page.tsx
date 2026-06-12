@@ -21,10 +21,10 @@ export default async function DashboardPage() {
         <h1 className="text-[40px] font-bold tracking-tight">Hello L!</h1>
       </header>
 
+      <WeekCalendar calendar={calendar} />
       <WaterCard day={day} goals={goals} milestones={milestones} />
       <ExerciseCard day={day} goals={goals} />
       <WeeklyChart week={week} goals={goals} />
-      <WeekCalendar calendar={calendar} />
       <BodyStatsCard day={day} goals={goals} />
       <CheatLogCard calendar={calendar} />
 
