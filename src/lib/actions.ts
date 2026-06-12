@@ -33,6 +33,8 @@ const hydrationSchema = z.object({
 
 const milestoneSchema = z.object({ date: isoDate, glass: z.coerce.number().int().min(1).max(20) });
 
+const setGlassesSchema = z.object({ date: isoDate, glasses: z.coerce.number().int().min(0).max(20) });
+
 const exerciseSchema = z.object({
   date: isoDate,
   minutes: z.coerce.number().int().positive().max(1_000),
@@ -116,6 +118,41 @@ export async function completeMilestone(input: z.input<typeof milestoneSchema>) 
     });
     revalidatePath("/dashboard");
   }
+}
+
+// Sets the day's water to exactly `glasses` (fills or clears). Water is logged
+// only via the milestone drops, so replacing the day's hydration is safe and
+// lets a tap un-fill as well as fill.
+export async function setWaterGlasses(input: z.input<typeof setGlassesSchema>) {
+  const { date, glasses } = setGlassesSchema.parse(input);
+  const day = date ?? todayISO();
+  const user = await requireUser();
+  const db = await getDb();
+
+  const [goalsRow] = await db.select().from(goals).where(eq(goals.userId, user.id));
+  const glassMl = goalsRow?.glassMl ?? 250;
+  const targetMl = glasses * glassMl;
+
+  const clearDay = db
+    .delete(hydrationEntries)
+    .where(and(eq(hydrationEntries.userId, user.id), eq(hydrationEntries.date, day)));
+
+  if (targetMl > 0) {
+    await db.batch([
+      clearDay,
+      db.insert(hydrationEntries).values({
+        userId: user.id,
+        date: day,
+        amountMl: targetMl,
+        presetName: `${glasses} glasses`,
+        beverageType: "water",
+        effectiveMl: targetMl,
+      }),
+    ]);
+  } else {
+    await clearDay;
+  }
+  revalidatePath("/dashboard");
 }
 
 export async function addExercise(input: z.input<typeof exerciseSchema>) {

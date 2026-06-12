@@ -9,7 +9,8 @@ import {
   PolarRadiusAxis,
   Label,
 } from "recharts";
-import { completeMilestone } from "@/lib/actions";
+import { setWaterGlasses } from "@/lib/actions";
+import { nextWaterGlasses } from "@/lib/domain/tracker";
 import { cn } from "@/lib/utils";
 import type { DaySummary, Goals, WaterMilestonesSummary } from "@/lib/domain/types";
 import {
@@ -127,8 +128,11 @@ export function WaterCard({
               )}
               onClick={() =>
                 run(
-                  () => completeMilestone({ glass: m.glass }),
-                  `Glass ${m.glass} logged`,
+                  () =>
+                    setWaterGlasses({
+                      glasses: nextWaterGlasses(m.glass, milestones.completedGlasses),
+                    }),
+                  m.complete ? `Glass ${m.glass} cleared` : `Glass ${m.glass} logged`,
                 )
               }
             >

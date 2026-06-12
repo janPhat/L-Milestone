@@ -191,6 +191,14 @@ describe("tracker domain", () => {
     expect(summarizeDay(state, "2026-06-06").waterML).toBe(1_250);
   });
 
+  test("water milestone toggle > tap a filled glass to clear it, tap an empty glass to fill to it", () => {
+    expect(tracker.nextWaterGlasses(3, 5)).toBe(2); // glass 3 filled -> clear down to 2
+    expect(tracker.nextWaterGlasses(5, 5)).toBe(4); // tap the last filled glass -> remove it
+    expect(tracker.nextWaterGlasses(6, 5)).toBe(6); // glass 6 empty -> fill up to 6
+    expect(tracker.nextWaterGlasses(1, 0)).toBe(1); // nothing filled -> fill first glass
+    expect(tracker.nextWaterGlasses(1, 1)).toBe(0); // only glass filled -> clear to 0
+  });
+
   test("weekly habit system > given logs > then milestones, monday body check, cheats, and calendar are reported", () => {
     expect(typeof tracker.addCheatLog).toBe("function");
     expect(typeof tracker.summarizeWaterMilestones).toBe("function");

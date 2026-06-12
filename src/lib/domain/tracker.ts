@@ -105,6 +105,15 @@ export function completeWaterMilestone(
   });
 }
 
+/**
+ * Toggle target (in glasses) for a tapped water milestone: tapping a filled
+ * glass (clickedGlass <= completedGlasses) clears down to clickedGlass - 1;
+ * tapping an empty glass fills up to clickedGlass.
+ */
+export function nextWaterGlasses(clickedGlass: number, completedGlasses: number): number {
+  return clickedGlass <= completedGlasses ? clickedGlass - 1 : clickedGlass;
+}
+
 export function addHydrationEntry(state: TrackerState, entry: HydrationInput): TrackerState {
   const hydrationEntry = createHydrationEntry(entry);
 
