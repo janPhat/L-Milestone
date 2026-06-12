@@ -15,10 +15,10 @@ const STATUS_TEXT: Record<MovementStatus, string> = {
   skip: "text-red-500",
 };
 
-const OPTIONS: { status: MovementStatus; label: string; dot: string }[] = [
-  { status: "exercise", label: "Exercise", dot: "bg-orange-500" },
-  { status: "smallWalk", label: "Small walk", dot: "bg-yellow-400" },
-  { status: "skip", label: "Skip", dot: "bg-red-500" },
+const OPTIONS: { status: MovementStatus; label: string; bg: string; faded: string }[] = [
+  { status: "exercise", label: "Exercise", bg: "bg-orange-500", faded: "bg-orange-500/50" },
+  { status: "smallWalk", label: "Small walk", bg: "bg-yellow-400", faded: "bg-yellow-400/50" },
+  { status: "skip", label: "Skip", bg: "bg-red-500", faded: "bg-red-500/50" },
 ];
 
 export function ExerciseCard({ movement }: { movement: MovementDay[] }) {
@@ -92,13 +92,10 @@ export function ExerciseCard({ movement }: { movement: MovementDay[] }) {
               aria-pressed={todayStatus === opt.status}
               onClick={() => set(opt.status)}
               className={cn(
-                "flex flex-1 items-center justify-center gap-1.5 rounded-md border px-2 py-1.5 text-sm transition-colors disabled:opacity-50",
-                todayStatus === opt.status
-                  ? "border-ring bg-accent font-medium text-foreground"
-                  : "border-input text-muted-foreground hover:bg-accent/50",
+                "flex-1 rounded-md px-2 py-1.5 text-sm text-black transition-colors disabled:opacity-50",
+                todayStatus === opt.status ? `${opt.bg} font-medium` : opt.faded,
               )}
             >
-              <span className={cn("size-2 rounded-full", opt.dot)} />
               {opt.label}
             </button>
           ))}
