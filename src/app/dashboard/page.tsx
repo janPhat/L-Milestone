@@ -18,7 +18,7 @@ export default async function DashboardPage() {
   return (
     <main className="mx-auto w-full max-w-md space-y-4 p-4 pb-16">
       <header className="flex items-center justify-between pt-2">
-        <h1 className="text-xl font-semibold tracking-tight">L Health</h1>
+        <h1 className="text-[40px] font-bold tracking-tight">Hello L!</h1>
       </header>
 
       <WaterCard day={day} goals={goals} milestones={milestones} />
