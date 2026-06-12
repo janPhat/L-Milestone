@@ -9,7 +9,6 @@ import {
   PolarRadiusAxis,
   Label,
 } from "recharts";
-import { Droplet } from "lucide-react";
 import { completeMilestone } from "@/lib/actions";
 import { cn } from "@/lib/utils";
 import type { DaySummary, Goals, WaterMilestonesSummary } from "@/lib/domain/types";
@@ -133,11 +132,17 @@ export function WaterCard({
                 )
               }
             >
-              <Droplet
+              <svg
+                viewBox="0 0 24 24"
                 className="size-8"
+                aria-hidden="true"
                 fill={m.complete ? "currentColor" : "none"}
-                strokeWidth={m.complete ? 0 : 1.75}
-              />
+                stroke={m.complete ? "none" : "currentColor"}
+                strokeWidth={1.75}
+                strokeLinejoin="round"
+              >
+                <path d="M12 2.5C12 2.5 19.5 11 19.5 15.5A7.5 7.5 0 0 1 4.5 15.5C4.5 11 12 2.5 12 2.5Z" />
+              </svg>
             </button>
           ))}
         </div>
