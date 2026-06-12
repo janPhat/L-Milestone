@@ -31,7 +31,7 @@ export function WeekCalendar({
   today: string;
 }) {
   return (
-    <Card>
+    <Card className="gap-4">
       <CardHeader className="gap-0">
         <CardTitle>Weekly Preview</CardTitle>
       </CardHeader>
