@@ -287,13 +287,15 @@ export function summarizeMovementWeek(
   const byDate = new Map(rows.map((row) => [row.date, row.status]));
 
   return daysInWeekStartingMonday(today).map((date) => {
-    const status = byDate.get(date);
+    const stored = byDate.get(date);
     return {
       date,
       status:
-        status === "exercise" || status === "smallWalk" || status === "skip"
-          ? status
-          : null,
+        stored === "exercise" || stored === "smallWalk" || stored === "skip"
+          ? stored
+          : date < today
+            ? "skip" // a past day with nothing logged counts as a skip
+            : null, // today (still settable) and future days stay empty
       isToday: date === today,
     };
   });
