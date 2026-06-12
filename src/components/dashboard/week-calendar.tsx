@@ -13,9 +13,10 @@ const WEEKDAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"] as const;
 
 const LEGEND = [
   { dotClass: "bg-chart-1", label: "Water" },
-  { dotClass: "bg-chart-2", label: "Exercise" },
-  { dotClass: "bg-chart-4", label: "Planned" },
-  { dotClass: "bg-destructive", label: "Cheat" },
+  { dotClass: "bg-orange-500", label: "Exercise" },
+  { dotClass: "bg-yellow-400", label: "Small walk" },
+  { dotClass: "bg-red-500", label: "Skip" },
+  { dotClass: "bg-gray-400", label: "Cheat" },
 ] as const;
 
 function dayOfMonth(date: string): number {
@@ -33,10 +34,7 @@ export function WeekCalendar({ calendar }: { calendar: CalendarDay[] }) {
           {calendar.map((day, index) => (
             <div
               key={day.date}
-              className={cn(
-                "flex flex-col items-center gap-1.5 rounded-md py-2",
-                day.bodyCheckDue && "ring-1 ring-ring",
-              )}
+              className="flex flex-col items-center gap-1.5 rounded-md py-2"
             >
               <span className="text-[10px] text-muted-foreground">
                 {WEEKDAY_LABELS[index % 7]}
@@ -49,13 +47,10 @@ export function WeekCalendar({ calendar }: { calendar: CalendarDay[] }) {
                   <span className="size-1.5 rounded-full bg-chart-1" />
                 )}
                 {day.exerciseCompleted && (
-                  <span className="size-1.5 rounded-full bg-chart-2" />
-                )}
-                {day.plannedExercise && !day.exerciseCompleted && (
-                  <span className="size-1.5 rounded-full bg-chart-4" />
+                  <span className="size-1.5 rounded-full bg-orange-500" />
                 )}
                 {day.cheats.length > 0 && (
-                  <span className="size-1.5 rounded-full bg-destructive" />
+                  <span className="size-1.5 rounded-full bg-gray-400" />
                 )}
               </div>
             </div>
@@ -72,10 +67,6 @@ export function WeekCalendar({ calendar }: { calendar: CalendarDay[] }) {
               {item.label}
             </span>
           ))}
-          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-            <span className="size-1.5 rounded-full ring-1 ring-ring" />
-            Body check due
-          </span>
         </div>
       </CardContent>
     </Card>
