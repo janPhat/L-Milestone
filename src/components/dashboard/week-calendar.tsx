@@ -27,7 +27,7 @@ export function WeekCalendar({ calendar }: { calendar: CalendarDay[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Week</CardTitle>
+        <CardTitle>Weekly Preview</CardTitle>
         <CardDescription>Monday-start view of the last 7 days.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
