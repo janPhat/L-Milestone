@@ -9,7 +9,7 @@ import {
   PolarRadiusAxis,
   Label,
 } from "recharts";
-import { Check } from "lucide-react";
+import { Droplet } from "lucide-react";
 import { addHydration, completeMilestone } from "@/lib/actions";
 import { cn } from "@/lib/utils";
 import type { DaySummary, Goals, WaterMilestonesSummary } from "@/lib/domain/types";
@@ -127,17 +127,19 @@ export function WaterCard({
           ))}
         </div>
 
-        <div className="flex flex-wrap justify-center gap-2">
+        <div className="flex flex-wrap justify-center gap-1.5">
           {milestones.milestones.map((m) => (
-            <Button
+            <button
               key={m.glass}
-              size="icon"
-              variant={m.complete ? "secondary" : "outline"}
+              type="button"
               disabled={pending}
               aria-label={`Glass ${m.glass}`}
+              title={`Glass ${m.glass}`}
               className={cn(
-                "size-9 rounded-full",
-                m.complete && "border-primary text-primary",
+                "rounded-full p-1 transition-colors disabled:opacity-50",
+                m.complete
+                  ? "text-chart-1"
+                  : "text-muted-foreground/30 hover:text-chart-1/60",
               )}
               onClick={() =>
                 run(
@@ -146,8 +148,12 @@ export function WaterCard({
                 )
               }
             >
-              {m.complete ? <Check className="size-4" /> : m.glass}
-            </Button>
+              <Droplet
+                className="size-8"
+                fill={m.complete ? "currentColor" : "none"}
+                strokeWidth={m.complete ? 0 : 1.75}
+              />
+            </button>
           ))}
         </div>
       </CardContent>
