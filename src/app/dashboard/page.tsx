@@ -24,7 +24,6 @@ export default async function DashboardPage() {
             {day.date} · {nowLabel}
           </p>
         </div>
-        <GoalsDialog goals={goals} />
       </header>
 
       <p className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
@@ -40,7 +39,10 @@ export default async function DashboardPage() {
 
       <div className="flex items-center justify-between pt-2">
         <span className="text-xs text-muted-foreground">{user.email}</span>
-        <SignOutButton />
+        <div className="flex items-center gap-2">
+          <GoalsDialog goals={goals} />
+          <SignOutButton />
+        </div>
       </div>
     </main>
   );
