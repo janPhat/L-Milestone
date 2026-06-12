@@ -45,6 +45,14 @@ export function createAuth(
       },
       {
         emailAndPassword: { enabled: true },
+        // Long-lived "stay signed in" sessions. Expire after 1 year, with the
+        // expiry sliding forward on any request older than a day — so an active
+        // user is effectively never logged out. Sign-in defaults to
+        // rememberMe:true, so the cookie persists across browser restarts.
+        session: {
+          expiresIn: 60 * 60 * 24 * 365, // 1 year
+          updateAge: 60 * 60 * 24, // refresh the expiry at most once per day
+        },
         rateLimit: { enabled: true, window: 60, max: 100 },
         hooks: {
           before: createAuthMiddleware(async (ctx) => {
