@@ -43,13 +43,19 @@ export function WeekCalendar({
               aria-current={day.date === today ? "date" : undefined}
               className={cn(
                 "flex flex-col items-center gap-1.5 rounded-md py-2",
-                day.date === today && "bg-accent text-accent-foreground",
+                day.date === today &&
+                  "bg-accent text-accent-foreground ring-1 ring-ring",
               )}
             >
               <span className="text-[10px] text-muted-foreground">
                 {WEEKDAY_LABELS[index % 7]}
               </span>
-              <span className="text-sm font-medium tabular-nums">
+              <span
+                className={cn(
+                  "text-sm tabular-nums",
+                  day.date === today ? "font-bold" : "font-medium",
+                )}
+              >
                 {dayOfMonth(day.date)}
               </span>
               <div className="flex h-2 items-center gap-0.5">
