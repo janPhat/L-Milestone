@@ -16,6 +16,8 @@ import type {
   HydrationInput,
   Intensity,
   MilestoneInput,
+  MovementDay,
+  MovementStatus,
   TrackerState,
   WaterMilestonesSummary,
   WeekDaySummary,
@@ -272,6 +274,40 @@ export function summarizeCalendar(state: TrackerState, date: string = state.toda
       cheatLabels: cheatsForDay.map((entry) => entry.label),
     };
   });
+}
+
+/**
+ * Maps stored movement rows onto the Monday-start week containing `date`,
+ * flagging which cell is today (the only one the UI lets you set).
+ */
+export function summarizeMovementWeek(
+  rows: { date: string; status: string }[],
+  today: string,
+): MovementDay[] {
+  const byDate = new Map(rows.map((row) => [row.date, row.status]));
+
+  return daysInWeekStartingMonday(today).map((date) => {
+    const status = byDate.get(date);
+    return {
+      date,
+      status:
+        status === "exercise" || status === "smallWalk" || status === "skip"
+          ? status
+          : null,
+      isToday: date === today,
+    };
+  });
+}
+
+/**
+ * Tap-to-toggle for the movement tracker: re-tapping the active status clears
+ * it (returns null); tapping a different one overwrites.
+ */
+export function nextMovementStatus(
+  current: MovementStatus | null,
+  clicked: MovementStatus,
+): MovementStatus | null {
+  return current === clicked ? null : clicked;
 }
 
 export function serializeTrackerState(state: TrackerState): string {

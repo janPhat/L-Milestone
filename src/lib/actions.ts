@@ -10,9 +10,10 @@ import {
   exerciseSessions,
   bodyStats,
   cheatLogs,
+  movementDays,
 } from "@/db";
 import { requireUser } from "@/lib/dal";
-import { createHydrationEntry } from "@/lib/domain/tracker";
+import { createHydrationEntry, nextMovementStatus } from "@/lib/domain/tracker";
 import { todayISO } from "@/lib/tracker-data";
 
 const isoDate = z
@@ -151,6 +152,38 @@ export async function setWaterGlasses(input: z.input<typeof setGlassesSchema>) {
     ]);
   } else {
     await clearDay;
+  }
+  revalidatePath("/dashboard");
+}
+
+const movementSchema = z.object({ status: z.enum(["exercise", "smallWalk", "skip"]) });
+
+// Sets today's movement status. The date is server-derived, so only today can
+// change; re-tapping the active status clears it (delete), a new one overwrites.
+export async function setMovement(input: z.input<typeof movementSchema>) {
+  const { status } = movementSchema.parse(input);
+  const day = todayISO();
+  const user = await requireUser();
+  const db = await getDb();
+
+  const [row] = await db
+    .select({ status: movementDays.status })
+    .from(movementDays)
+    .where(and(eq(movementDays.userId, user.id), eq(movementDays.date, day)));
+
+  const next = nextMovementStatus(row?.status ?? null, status);
+  if (next === null) {
+    await db
+      .delete(movementDays)
+      .where(and(eq(movementDays.userId, user.id), eq(movementDays.date, day)));
+  } else {
+    await db
+      .insert(movementDays)
+      .values({ userId: user.id, date: day, status: next })
+      .onConflictDoUpdate({
+        target: [movementDays.userId, movementDays.date],
+        set: { status: next },
+      });
   }
   revalidatePath("/dashboard");
 }

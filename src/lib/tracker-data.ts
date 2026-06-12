@@ -6,6 +6,7 @@ import {
   exerciseSessions,
   bodyStats,
   cheatLogs,
+  movementDays,
   type Database,
 } from "@/db";
 import { requireUser } from "@/lib/dal";
@@ -13,6 +14,7 @@ import { buildTrackerState } from "@/lib/domain/build-state";
 import {
   summarizeCalendar,
   summarizeDay,
+  summarizeMovementWeek,
   summarizeWaterMilestones,
   summarizeWeek,
 } from "@/lib/domain/tracker";
@@ -66,6 +68,10 @@ export async function getDashboardData() {
   const db = await getDb();
   const today = todayISO();
   const state = await loadTrackerState(db, user.id, today);
+  const movementRows = await db
+    .select({ date: movementDays.date, status: movementDays.status })
+    .from(movementDays)
+    .where(eq(movementDays.userId, user.id));
 
   return {
     user,
@@ -76,5 +82,6 @@ export async function getDashboardData() {
     week: summarizeWeek(state, today),
     milestones: summarizeWaterMilestones(state, today),
     calendar: summarizeCalendar(state, today),
+    movement: summarizeMovementWeek(movementRows, today),
   };
 }

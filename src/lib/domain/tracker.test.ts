@@ -199,6 +199,30 @@ describe("tracker domain", () => {
     expect(tracker.nextWaterGlasses(1, 1)).toBe(0); // only glass filled -> clear to 0
   });
 
+  test("movement week > maps statuses onto Mon-Sun and flags today", () => {
+    const week = tracker.summarizeMovementWeek(
+      [
+        { date: "2026-06-08", status: "exercise" },
+        { date: "2026-06-12", status: "skip" },
+      ],
+      "2026-06-12",
+    );
+    expect(week.map((d) => d.date)).toEqual([
+      "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11",
+      "2026-06-12", "2026-06-13", "2026-06-14",
+    ]);
+    expect(week[0].status).toBe("exercise"); // Monday
+    expect(week[4].status).toBe("skip"); // Friday (today)
+    expect(week[1].status).toBeNull(); // Tuesday empty
+    expect(week.filter((d) => d.isToday).map((d) => d.date)).toEqual(["2026-06-12"]);
+  });
+
+  test("movement toggle > re-tapping the active status clears it, a new one overwrites", () => {
+    expect(tracker.nextMovementStatus(null, "exercise")).toBe("exercise");
+    expect(tracker.nextMovementStatus("exercise", "exercise")).toBeNull();
+    expect(tracker.nextMovementStatus("exercise", "skip")).toBe("skip");
+  });
+
   test("weekly habit system > given logs > then milestones, monday body check, cheats, and calendar are reported", () => {
     expect(typeof tracker.addCheatLog).toBe("function");
     expect(typeof tracker.summarizeWaterMilestones).toBe("function");

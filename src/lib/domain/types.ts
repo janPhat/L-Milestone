@@ -156,3 +156,11 @@ export interface CalendarDay {
   cheats: string[];
   cheatLabels: string[];
 }
+
+export type MovementStatus = "exercise" | "smallWalk" | "skip";
+
+export interface MovementDay {
+  date: string;
+  status: MovementStatus | null;
+  isToday: boolean;
+}

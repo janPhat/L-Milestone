@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { sqliteTable, text, integer, real, index } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, real, index, primaryKey } from "drizzle-orm/sqlite-core";
 import * as authSchema from "./auth.schema";
 import { users } from "./auth.schema";
 
@@ -95,6 +95,19 @@ export const cheatLogs = sqliteTable(
   (t) => [index("cheat_user_date_idx").on(t.userId, t.date)],
 );
 
+// One status per user per day for the weekly movement tracker. Composite PK
+// (user_id, date) keeps a single row per day, so the tap-to-set is an upsert.
+export const movementDays = sqliteTable(
+  "movement_days",
+  {
+    userId: userIdFk(),
+    date: text("date").notNull(),
+    status: text("status", { enum: ["exercise", "smallWalk", "skip"] }).notNull(),
+    createdAt: createdAtMs(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.date] })],
+);
+
 // The full Drizzle schema (auth + domain) for drizzle(env.DB, { schema }).
 export const schema = {
   ...authSchema,
@@ -103,4 +116,5 @@ export const schema = {
   exerciseSessions,
   bodyStats,
   cheatLogs,
+  movementDays,
 } as const;
