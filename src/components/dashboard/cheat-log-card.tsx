@@ -92,7 +92,8 @@ export function CheatLogCard({ calendar }: { calendar: CalendarDay[] }) {
                   {day.cheatLabels.map((cheatLabel, index) => (
                     <Badge
                       key={`${day.date}-${index}`}
-                      variant={day.cheats[index] === "drink" ? "destructive" : "secondary"}
+                      variant="outline"
+                      className="border-ring text-ring text-sm"
                     >
                       {cheatLabel}
                     </Badge>
