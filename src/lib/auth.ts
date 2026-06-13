@@ -3,7 +3,9 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { withCloudflare } from "better-auth-cloudflare";
 import { drizzle } from "drizzle-orm/d1";
-import { schema } from "../db";
+import { and, eq, isNull } from "drizzle-orm";
+import { invites, schema } from "../db";
+import { isInviteRedeemable, normalizeInviteCode } from "./domain/invite";
 import { resetPasswordEmail, sendEmail, verifyEmail } from "./email";
 
 /**
@@ -16,9 +18,13 @@ import { resetPasswordEmail, sendEmail, verifyEmail } from "./email";
  *   Drizzle schema; the drizzleAdapter fallback below gives the CLI a SQLite
  *   provider to introspect without needing a live binding.
  *
- * Registration is invite-only: the before-hook rejects /sign-up/email unless
- * the request carries an `x-invite-code` header matching env.INVITE_CODE. It is
- * fail-closed — if the secret is unset, all sign-ups are blocked.
+ * Registration is invite-only. The before-hook rejects /sign-up/email unless
+ * the request carries an `x-invite-code` that is either a redeemable per-person
+ * invite (an `invites` row — unused and not revoked) or matches the optional
+ * env.INVITE_CODE master/break-glass code. On a successful sign-up the
+ * after-hook consumes the per-person code (marks it used by the new user). It is
+ * fail-closed — if neither a valid invite row nor the master code matches, the
+ * sign-up is rejected.
  *
  * Route protection is enforced in Server Components / Route Handlers / the DAL
  * via auth.api.getSession(), NOT in middleware (OpenNext does not run Node
@@ -81,15 +87,47 @@ export function createAuth(
         hooks: {
           before: createAuthMiddleware(async (ctx) => {
             if (ctx.path !== "/sign-up/email") return;
-            const provided =
+            const raw =
               ctx.headers?.get("x-invite-code") ??
-              (ctx.body as { inviteCode?: string } | undefined)?.inviteCode;
-            const expected = env?.INVITE_CODE;
-            if (!expected || provided !== expected) {
-              throw new APIError("FORBIDDEN", {
-                message: "Sign-up is invite-only — a valid invite code is required.",
-              });
+              (ctx.body as { inviteCode?: string } | undefined)?.inviteCode ??
+              "";
+            // Optional master/break-glass code (exact match, never consumed).
+            if (env?.INVITE_CODE && raw === env.INVITE_CODE) return;
+            // Per-person code: must be a known, unused, un-revoked row.
+            const code = normalizeInviteCode(raw);
+            if (code) {
+              const [row] = await db
+                .select({ usedAt: invites.usedAt, revokedAt: invites.revokedAt })
+                .from(invites)
+                .where(eq(invites.code, code));
+              if (isInviteRedeemable(row)) return;
             }
+            throw new APIError("FORBIDDEN", {
+              message: "Sign-up is invite-only — a valid invite code is required.",
+            });
+          }),
+          after: createAuthMiddleware(async (ctx) => {
+            if (!ctx.path.startsWith("/sign-up")) return;
+            const newUserId = ctx.context.newSession?.user?.id;
+            if (!newUserId) return;
+            const raw =
+              ctx.headers?.get("x-invite-code") ??
+              (ctx.body as { inviteCode?: string } | undefined)?.inviteCode ??
+              "";
+            const code = normalizeInviteCode(raw);
+            if (!code) return;
+            // Consume the per-person code. The conditional WHERE makes this a
+            // no-op for the master code (no row) and blocks a double-consume race.
+            await db
+              .update(invites)
+              .set({ usedByUserId: newUserId, usedAt: new Date() })
+              .where(
+                and(
+                  eq(invites.code, code),
+                  isNull(invites.usedAt),
+                  isNull(invites.revokedAt),
+                ),
+              );
           }),
         },
       },

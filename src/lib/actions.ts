@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import {
   getDb,
@@ -11,12 +11,14 @@ import {
   bodyStats,
   cheatLogs,
   movementDays,
+  invites,
   users,
   sessions,
   accounts,
 } from "@/db";
 import { requireUser } from "@/lib/dal";
 import { createHydrationEntry, nextMovementStatus } from "@/lib/domain/tracker";
+import { generateInviteCode, normalizeInviteCode } from "@/lib/domain/invite";
 import { todayISO, userTimezone } from "@/lib/tracker-data";
 
 const isoDate = z
@@ -291,8 +293,88 @@ export async function deleteAccount() {
     db.delete(cheatLogs).where(eq(cheatLogs.userId, user.id)),
     db.delete(movementDays).where(eq(movementDays.userId, user.id)),
     db.delete(goals).where(eq(goals.userId, user.id)),
+    // Invites this user created go away; invites they redeemed stay (spent) but
+    // lose the now-dangling redeemer reference (mirrors the FK set-null).
+    db.update(invites).set({ usedByUserId: null }).where(eq(invites.usedByUserId, user.id)),
+    db.delete(invites).where(eq(invites.createdByUserId, user.id)),
     db.delete(sessions).where(eq(sessions.userId, user.id)),
     db.delete(accounts).where(eq(accounts.userId, user.id)),
     db.delete(users).where(eq(users.id, user.id)),
   ]);
+}
+
+/** A signed-in user's invite, flattened for the client (epoch-ms timestamps). */
+export type InviteSummary = {
+  code: string;
+  note: string | null;
+  createdAt: number;
+  usedAt: number | null;
+  revokedAt: number | null;
+};
+
+const createInviteSchema = z.object({
+  note: z.string().trim().max(60).optional(),
+});
+
+/** Mints a fresh single-use code owned by the signed-in user; returns the code. */
+export async function createInvite(
+  input?: z.input<typeof createInviteSchema>,
+): Promise<string> {
+  const { note } = createInviteSchema.parse(input ?? {});
+  const user = await requireUser();
+  const db = await getDb();
+
+  const code = generateInviteCode();
+  await db.insert(invites).values({
+    code,
+    createdByUserId: user.id,
+    note: note && note.length > 0 ? note : null,
+  });
+  revalidatePath("/dashboard");
+  return code;
+}
+
+/** Lists the invites the signed-in user created, newest first. */
+export async function listInvites(): Promise<InviteSummary[]> {
+  const user = await requireUser();
+  const db = await getDb();
+
+  const rows = await db
+    .select()
+    .from(invites)
+    .where(eq(invites.createdByUserId, user.id))
+    .orderBy(desc(invites.createdAt));
+
+  return rows.map((row) => ({
+    code: row.code,
+    note: row.note,
+    createdAt: row.createdAt.getTime(),
+    usedAt: row.usedAt ? row.usedAt.getTime() : null,
+    revokedAt: row.revokedAt ? row.revokedAt.getTime() : null,
+  }));
+}
+
+const revokeInviteSchema = z.object({ code: z.string().trim().min(1) });
+
+/**
+ * Revokes one of the user's own codes — only if it's still unused and not
+ * already revoked. Scoped to the creator so no one can revoke another's code.
+ */
+export async function revokeInvite(input: z.input<typeof revokeInviteSchema>) {
+  const { code } = revokeInviteSchema.parse(input);
+  const user = await requireUser();
+  const db = await getDb();
+
+  await db
+    .update(invites)
+    .set({ revokedAt: new Date() })
+    .where(
+      and(
+        eq(invites.code, normalizeInviteCode(code)),
+        eq(invites.createdByUserId, user.id),
+        isNull(invites.usedAt),
+        isNull(invites.revokedAt),
+      ),
+    );
+  revalidatePath("/dashboard");
 }

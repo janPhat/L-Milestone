@@ -109,6 +109,28 @@ export const movementDays = sqliteTable(
   (t) => [primaryKey({ columns: [t.userId, t.date] })],
 );
 
+// Single-use, revocable sign-up invites. Each code is minted by a user
+// (created_by_user_id), redeemed at most once (used_by_user_id / used_at), and
+// can be revoked before use (revoked_at). The auth before-hook checks
+// redeemability; the after-hook consumes the code on a successful sign-up.
+export const invites = sqliteTable(
+  "invites",
+  {
+    code: text("code").primaryKey(),
+    createdByUserId: text("created_by_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    note: text("note"),
+    usedByUserId: text("used_by_user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    usedAt: integer("used_at", { mode: "timestamp_ms" }),
+    revokedAt: integer("revoked_at", { mode: "timestamp_ms" }),
+    createdAt: createdAtMs(),
+  },
+  (t) => [index("invites_created_by_idx").on(t.createdByUserId)],
+);
+
 // The full Drizzle schema (auth + domain) for drizzle(env.DB, { schema }).
 export const schema = {
   ...authSchema,
@@ -118,4 +140,5 @@ export const schema = {
   bodyStats,
   cheatLogs,
   movementDays,
+  invites,
 } as const;
