@@ -4,6 +4,7 @@ import { APIError, createAuthMiddleware } from "better-auth/api";
 import { withCloudflare } from "better-auth-cloudflare";
 import { drizzle } from "drizzle-orm/d1";
 import { schema } from "../db";
+import { resetPasswordEmail, sendEmail, verifyEmail } from "./email";
 
 /**
  * Builds a Better Auth instance.
@@ -44,7 +45,30 @@ export function createAuth(
         d1: env ? { db, options: { usePlural: true } } : undefined,
       },
       {
-        emailAndPassword: { enabled: true },
+        emailAndPassword: {
+          enabled: true,
+          // Self-serve password reset — emails a link to /reset-password.
+          sendResetPassword: async ({ user, url }) => {
+            await sendEmail(env, {
+              to: user.email,
+              subject: "Reset your L Health password",
+              html: resetPasswordEmail(user.name, url),
+            });
+          },
+        },
+        // Verification link on sign-up. NOT required to sign in, so a flaky or
+        // undeliverable email never locks anyone out — turn on
+        // requireEmailVerification later to enforce it.
+        emailVerification: {
+          sendOnSignUp: true,
+          sendVerificationEmail: async ({ user, url }) => {
+            await sendEmail(env, {
+              to: user.email,
+              subject: "Verify your L Health email",
+              html: verifyEmail(user.name, url),
+            });
+          },
+        },
         // Long-lived "stay signed in" sessions. Expire after 1 year, with the
         // expiry sliding forward on any request older than a day — so an active
         // user is effectively never logged out. Sign-in defaults to
