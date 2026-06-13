@@ -11,6 +11,9 @@ import {
   bodyStats,
   cheatLogs,
   movementDays,
+  users,
+  sessions,
+  accounts,
 } from "@/db";
 import { requireUser } from "@/lib/dal";
 import { createHydrationEntry, nextMovementStatus } from "@/lib/domain/tracker";
@@ -269,4 +272,27 @@ export async function updateGoals(input: z.input<typeof goalsSchema>) {
     .values({ userId: user.id, ...updates })
     .onConflictDoUpdate({ target: goals.userId, set: updates });
   revalidatePath("/dashboard");
+}
+
+/**
+ * Permanently deletes the signed-in user and ALL their data. FK cascades from
+ * `users` would suffice, but we also clear every child table explicitly (in
+ * child-before-parent order) so deletion is complete even if FK enforcement is
+ * ever off. Irreversible — the UI gates this behind a typed confirmation.
+ */
+export async function deleteAccount() {
+  const user = await requireUser();
+  const db = await getDb();
+
+  await db.batch([
+    db.delete(hydrationEntries).where(eq(hydrationEntries.userId, user.id)),
+    db.delete(exerciseSessions).where(eq(exerciseSessions.userId, user.id)),
+    db.delete(bodyStats).where(eq(bodyStats.userId, user.id)),
+    db.delete(cheatLogs).where(eq(cheatLogs.userId, user.id)),
+    db.delete(movementDays).where(eq(movementDays.userId, user.id)),
+    db.delete(goals).where(eq(goals.userId, user.id)),
+    db.delete(sessions).where(eq(sessions.userId, user.id)),
+    db.delete(accounts).where(eq(accounts.userId, user.id)),
+    db.delete(users).where(eq(users.id, user.id)),
+  ]);
 }

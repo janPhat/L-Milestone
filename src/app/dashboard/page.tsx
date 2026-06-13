@@ -7,6 +7,7 @@ import { PerformanceCard } from "@/components/dashboard/performance-card";
 import { WeekCalendar } from "@/components/dashboard/week-calendar";
 import { CheatLogCard } from "@/components/dashboard/cheat-log-card";
 import { GoalsDialog } from "@/components/dashboard/goals-dialog";
+import { AccountDialog } from "@/components/dashboard/account-dialog";
 
 // Real session enforcement + the Phase-4 summaries over the user's D1 rows
 // happen in getDashboardData(); each section is a client component wired to a
@@ -49,7 +50,8 @@ export default async function DashboardPage() {
         <span className="min-w-0 truncate text-xs text-muted-foreground">
           {user.email}
         </span>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <AccountDialog />
           <GoalsDialog goals={goals} />
           <SignOutButton />
         </div>
