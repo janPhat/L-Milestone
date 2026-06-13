@@ -28,7 +28,9 @@ export default async function DashboardPage() {
   return (
     <main className="mx-auto w-full max-w-md space-y-4 p-4 pb-16">
       <header className="flex items-center justify-between pt-2">
-        <h1 className="text-[40px] font-bold tracking-tight">Hello L!</h1>
+        <h1 className="text-[40px] font-bold tracking-tight">
+          Hello {user.name?.trim().split(/\s+/)[0] || "there"}!
+        </h1>
       </header>
 
       <WeekCalendar calendar={calendar} today={today} movement={movement} />
