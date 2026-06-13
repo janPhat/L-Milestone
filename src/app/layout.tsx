@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
@@ -12,6 +12,10 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "L Health",
   description: "Track daily water, exercise, body stats, and goals.",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#f9f2e6",
 };
 
 export default function RootLayout({
