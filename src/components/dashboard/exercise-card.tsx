@@ -51,10 +51,10 @@ export function ExerciseCard({ movement }: { movement: MovementDay[] }) {
                 day.status
                   ? STATUS_BG[day.status]
                   : cn(
-                      "border border-muted-foreground/30",
+                      "border",
                       day.isToday
-                        ? "font-semibold text-foreground"
-                        : "text-muted-foreground",
+                        ? "border-foreground font-semibold text-foreground"
+                        : "border-muted-foreground/30 text-muted-foreground",
                     ),
               )}
             >
@@ -72,7 +72,7 @@ export function ExerciseCard({ movement }: { movement: MovementDay[] }) {
               aria-pressed={todayStatus === opt.status}
               onClick={() => set(opt.status)}
               className={cn(
-                "flex min-h-10 flex-1 items-center justify-center whitespace-nowrap rounded-md px-1.5 text-xs text-black transition-colors disabled:opacity-50 xs:text-sm",
+                "flex flex-1 items-center justify-center whitespace-nowrap rounded-full px-1.5 py-1.5 text-xs text-black transition-colors disabled:opacity-50 xs:text-sm",
                 opt.faded,
                 todayStatus === opt.status && "font-medium",
               )}

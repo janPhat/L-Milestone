@@ -73,14 +73,6 @@ export function PerformanceCard({
               />
             ))}
           </div>
-          {period === "monthly" && (
-            <div className="mt-1 flex justify-between text-[10px] text-[#7d9ccb]">
-              <span>{monthName.slice(0, 3)} 1</span>
-              <span>
-                {monthName.slice(0, 3)} {data.totalDays}
-              </span>
-            </div>
-          )}
         </div>
 
         <div className="grid grid-cols-2 gap-2.5">
