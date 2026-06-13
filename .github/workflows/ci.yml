@@ -1,12 +1,13 @@
 name: CI
 
-# Runs on every PR into main and every push to a non-main branch.
-# No Cloudflare credentials are used here, so it is safe for fork PRs.
+# Test gate: runs on every PR into main and on main itself. Cloudflare Workers
+# Builds handles deployment; this only validates. No credentials used here.
+# Pair with a branch-protection rule requiring this check before merging to main.
 on:
   pull_request:
     branches: [main]
   push:
-    branches-ignore: [main]
+    branches: [main]
 
 # Least privilege: CI only needs to read the repo.
 permissions:

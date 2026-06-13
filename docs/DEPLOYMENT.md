@@ -1,54 +1,60 @@
 # Deployment & CI/CD
 
-L Health ships to **Cloudflare Workers** via OpenNext. Source of truth for data is
-**Cloudflare D1**. CI/CD runs on **GitHub Actions**.
+L Health ships to **Cloudflare Workers** via OpenNext. **Cloudflare D1** (SQLite) is the
+source of truth. Two systems, one job each:
 
-## Pipelines
-
-| Workflow | File | Trigger | Does |
+| Concern | System | Trigger | Does |
 |---|---|---|---|
-| **CI** | `.github/workflows/ci.yml` | PRs into `main`, pushes to any non-`main` branch | `npm ci` → `cf-typegen` → typecheck → tests → OpenNext build. No credentials, no deploy. |
-| **Deploy (production)** | `.github/workflows/deploy.yml` | push/merge to `main`, or manual `workflow_dispatch` | Re-validates (typecheck + tests + build) → applies remote D1 migrations → deploys to Cloudflare. |
+| **CI (tests)** | GitHub Actions — `.github/workflows/ci.yml` | PRs into `main`, pushes to `main` | `npm ci` → typecheck → Vitest → OpenNext build. No deploy, no credentials. |
+| **CD (deploy)** | **Cloudflare Workers Builds** (Git integration) | push to `main` (+ PR preview builds) | Builds with OpenNext and deploys the Worker. Configured in the Cloudflare dashboard. |
 
-- `main` is the **production** branch. Merging to it auto-deploys.
-- Node version is pinned in `.nvmrc` (`22`).
-- Concurrency: only one production deploy runs at a time and in-flight deploys are never cancelled.
+> Deployment is owned by **Cloudflare Workers Builds**, not GitHub Actions. (An Actions
+> deploy workflow was intentionally removed so the two don't double-deploy.)
 
-## One-time setup — required GitHub secret
+## Recommended: gate deploys with branch protection
 
-The deploy workflow needs a single secret: **`CLOUDFLARE_API_TOKEN`**.
-(The Cloudflare **account ID** is already in `wrangler.jsonc`, so it is not a secret.)
+Workers Builds deploys whatever lands on `main` regardless of the CI result. To keep a
+real test gate, protect `main`:
 
-1. Cloudflare dashboard → **My Profile → API Tokens → Create Token**.
-2. Use the **“Edit Cloudflare Workers”** template, or a custom token with at least:
-   - Account · **Workers Scripts** · Edit
-   - Account · **D1** · Edit
-   - Account · **Workers KV Storage** · Edit *(OpenNext incremental cache)*
-   - Account · **Account Settings** · Read
-   - User · **User Details** · Read
-   - (Workers.dev only — no Zone scopes needed.)
-   - Scope it to the account that owns the `l-health` Worker.
-3. GitHub repo → **Settings → Secrets and variables → Actions → New repository secret**
-   - Name: `CLOUDFLARE_API_TOKEN`
-   - Value: the token from step 2.
+GitHub → repo **Settings → Branches → Add branch ruleset** for `main`:
+- Require a pull request before merging.
+- Require status checks to pass → select **“Typecheck · test · build”**.
 
-Until this secret exists, the deploy job fails fast with a clear message (the build/test
-steps still pass).
+Now only test-passing code reaches `main`, and Workers Builds deploys it.
 
-## Application secrets (Worker, not CI)
+## Cloudflare Workers Builds — dashboard config
 
-These live as **Worker secrets** (set once with `wrangler secret put <NAME>`), not in GitHub
-Actions. They persist across deploys, so the pipeline does not manage them:
+Cloudflare dashboard → **Workers → l-health → Settings → Builds**. This is where the
+build/deploy commands live (they are NOT in the repo). For this OpenNext app set:
+
+- **Build command:** `npx opennextjs-cloudflare build`
+- **Deploy command:** `npx opennextjs-cloudflare deploy`
+- **Root directory:** `/`
+- **Production branch:** `main`
+- **Node version:** picked up from `.nvmrc` (currently `24`).
+- **D1 migrations on deploy (optional but recommended):** prefix the build command:
+  `npm run db:migrate:remote && npx opennextjs-cloudflare build`
+  (Workers Builds runs with the account's credentials, so `wrangler` is already
+  authenticated — no API token needed there.)
+
+A wrong build command (e.g. the default `npx wrangler deploy` without first running the
+OpenNext build) is the usual cause of a failed Workers Build, because `.open-next/worker.js`
+won't exist yet.
+
+## Application / Worker secrets
+
+Set once as **Worker secrets** (persist across deploys; not in any pipeline):
 
 - `BETTER_AUTH_SECRET` — session/cookie signing secret.
 - `BETTER_AUTH_URL` — public origin (production Worker URL).
 - `INVITE_CODE` — invite-only sign-up gate.
 
-Local dev reads the same names from `.dev.vars` (gitignored). See `.env.example`.
+`wrangler secret put <NAME>`. Local dev reads the same names from `.dev.vars` (gitignored).
 
 ## Manual deploy (fallback)
 
-From a clean checkout with the Cloudflare token in your environment:
+From a clean checkout with a Cloudflare API token in your environment
+(`CLOUDFLARE_API_TOKEN`; `account_id` is in `wrangler.jsonc`):
 
 ```bash
 npm ci
@@ -56,11 +62,11 @@ npm run db:migrate:remote   # apply pending D1 migrations
 npm run deploy              # opennextjs-cloudflare build && deploy
 ```
 
+(The token is only needed for local/manual deploys — Workers Builds and CI do not use it.)
+
 ## Rollback
 
-- **Code:** revert the offending commit on `main` and push — the pipeline redeploys the
-  previous good state. (`git revert <sha> && git push`.)
-- **Immediate:** `npx wrangler rollback` (reverts the Worker to the previous version) or
-  re-deploy a known-good commit via the `workflow_dispatch` button.
-- D1 migrations are forward-only; write a new migration to undo schema changes rather than
-  rolling a migration back.
+- **Code:** `git revert <sha> && git push` — Workers Builds redeploys the previous state.
+- **Immediate:** `npx wrangler rollback` (revert the Worker to the previous version), or
+  re-run the build for a known-good commit from the Workers Builds dashboard.
+- D1 migrations are forward-only — undo schema changes with a new migration.
