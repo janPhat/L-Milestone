@@ -2,6 +2,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Extra breakpoint for phones below 360px (small Android / older iPhone SE),
+   so a few tight labels can drop a type step only on those narrow widths.
+   Breakpoints must live in a plain @theme block to register the `xs:` variant
+   (a `@theme inline` block does not generate the responsive variant). */
+@theme {
+  --breakpoint-xs: 22.5rem;
+}
+
 /* Reference-2 inspired: warm cream canvas, periwinkle "water" accent,
    soft pink pop, near-black ink, generous rounding. */
 :root {
@@ -86,6 +94,11 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
+  /* Status palette overrides — exercise / small walk / cheat */
+  --color-orange-500: #ff9901;
+  --color-yellow-400: #ffd200;
+  --color-red-500: #df2d19;
 }
 
 @layer base {
@@ -98,4 +111,15 @@
     color: var(--foreground);
     font-family: var(--font-sans);
   }
+}
+
+/* Opt-in: hide the native number-input spinners on number fields. */
+.no-spinner::-webkit-inner-spin-button,
+.no-spinner::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.no-spinner {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }

@@ -11,8 +11,19 @@ import { createAuth } from "@/lib/auth";
  */
 export const getSession = cache(async () => {
   const { env, cf } = await getCloudflareContext({ async: true });
-  const auth = createAuth(env, cf as IncomingRequestCfProperties);
-  return auth.api.getSession({ headers: await headers() });
+  const requestHeaders = await headers();
+  // Give Better Auth an explicit baseURL derived from the request origin (the
+  // same value the /api/auth route handler uses via new URL(req.url).origin).
+  // Without it Better Auth warns on every request. Works in dev (localhost) and
+  // prod (the Worker host) with no env/secret dependency.
+  const host =
+    requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "";
+  const proto =
+    requestHeaders.get("x-forwarded-proto") ??
+    (host.startsWith("localhost") || host.startsWith("127.") ? "http" : "https");
+  const baseURL = host ? `${proto}://${host}` : undefined;
+  const auth = createAuth(env, cf as IncomingRequestCfProperties, baseURL);
+  return auth.api.getSession({ headers: requestHeaders });
 });
 
 /** Returns the authenticated user, or redirects to /sign-in. */

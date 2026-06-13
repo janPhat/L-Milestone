@@ -76,13 +76,13 @@ export default function SignUpPage() {
               />
             </div>
           </CardContent>
-          <CardFooter className="mt-6 flex-col gap-3">
+          <CardFooter className="mt-6 flex-col gap-4">
             <Button type="submit" className="w-full" disabled={pending}>
               {pending ? "Creating account…" : "Sign up"}
             </Button>
             <p className="text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link href="/sign-in" className="underline">
+              <Link href="/sign-in" className="inline-block py-2 underline">
                 Sign in
               </Link>
             </p>

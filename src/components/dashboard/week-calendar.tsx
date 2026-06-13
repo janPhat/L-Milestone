@@ -15,8 +15,8 @@ const LEGEND = [
   { dotClass: "bg-chart-1", label: "Water" },
   { dotClass: "bg-orange-500", label: "Exercise" },
   { dotClass: "bg-yellow-400", label: "Small walk" },
-  { dotClass: "bg-red-500", label: "Skip" },
-  { dotClass: "bg-gray-400", label: "Cheat" },
+  { dotClass: "bg-gray-200", label: "Skip" },
+  { dotClass: "bg-red-500", label: "Cheat" },
 ] as const;
 
 function dayOfMonth(date: string): number {
@@ -48,7 +48,7 @@ export function WeekCalendar({
               className={cn(
                 "flex flex-col items-center gap-1.5 rounded-md py-2",
                 day.date === today &&
-                  "bg-accent text-accent-foreground ring-1 ring-ring",
+                  "rounded-[360px] bg-card text-accent-foreground ring-1 ring-ring",
               )}
             >
               <span className="text-[10px] text-muted-foreground">
@@ -73,10 +73,10 @@ export function WeekCalendar({
                   <span className="size-1.5 rounded-full bg-yellow-400" />
                 )}
                 {statusByDate.get(day.date) === "skip" && (
-                  <span className="size-1.5 rounded-full bg-red-500" />
+                  <span className="size-1.5 rounded-full bg-gray-200" />
                 )}
                 {day.cheats.length > 0 && (
-                  <span className="size-1.5 rounded-full bg-gray-400" />
+                  <span className="size-1.5 rounded-full bg-red-500" />
                 )}
               </div>
             </div>

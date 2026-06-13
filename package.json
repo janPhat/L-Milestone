@@ -9,10 +9,14 @@
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply l-health --local",
     "db:migrate:remote": "wrangler d1 migrations apply l-health --remote",
     "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

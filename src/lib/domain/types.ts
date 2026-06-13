@@ -159,6 +159,17 @@ export interface CalendarDay {
 
 export type MovementStatus = "exercise" | "smallWalk" | "skip";
 
+export type PerformancePeriod = "weekly" | "monthly";
+
+export interface PerformanceSummary {
+  period: PerformancePeriod;
+  totalDays: number;
+  waterDaysHit: number;
+  waterByDay: { date: string; hit: boolean }[];
+  exerciseDays: number;
+  cheats: number;
+}
+
 export interface MovementDay {
   date: string;
   status: MovementStatus | null;

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
@@ -14,12 +14,16 @@ export const metadata: Metadata = {
   description: "Track daily water, exercise, body stats, and goals.",
 };
 
+export const viewport: Viewport = {
+  themeColor: "#f9f2e6",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={jakarta.variable}>
-      <body className="min-h-dvh bg-background text-foreground font-sans antialiased">
+    <html lang="en" className={`${jakarta.variable} overflow-x-clip`}>
+      <body className="min-h-dvh overflow-x-clip bg-background text-foreground font-sans antialiased">
         {children}
         <Toaster />
       </body>
