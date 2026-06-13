@@ -1,16 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
-  <defs>
-    <filter id="raise" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0.5" dy="3.5" stdDeviation="2.8" flood-color="#2b2620" flood-opacity="0.3"/>
-    </filter>
-  </defs>
   <rect width="120" height="120" rx="28" fill="#f4ecda"/>
-  <g filter="url(#raise)">
-    <path d="M66 26 H82 V82 H102 V96 H66 Z" fill="#2b2620"/>
-    <g fill="#ff9901" transform="translate(48,60)">
-      <rect x="-7.5" y="-28" width="15" height="56" rx="7.5"/>
-      <rect x="-7.5" y="-28" width="15" height="56" rx="7.5" transform="rotate(60)"/>
-      <rect x="-7.5" y="-28" width="15" height="56" rx="7.5" transform="rotate(120)"/>
-    </g>
+  <path d="M66 26 H82 V82 H102 V96 H66 Z" fill="#2b2620"/>
+  <g fill="#ff9901" transform="translate(48,60)">
+    <rect x="-7.5" y="-28" width="15" height="56" rx="7.5"/>
+    <rect x="-7.5" y="-28" width="15" height="56" rx="7.5" transform="rotate(60)"/>
+    <rect x="-7.5" y="-28" width="15" height="56" rx="7.5" transform="rotate(120)"/>
   </g>
 </svg>
