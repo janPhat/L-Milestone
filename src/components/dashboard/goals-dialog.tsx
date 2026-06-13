@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import type { Goals } from "@/lib/domain/types";
 import { updateGoals } from "@/lib/actions";
@@ -24,6 +24,14 @@ export function GoalsDialog({ goals }: { goals: Goals }) {
   const [waterGlasses, setWaterGlasses] = useState(String(goals.waterGlasses));
   const [targetWeightKg, setTargetWeightKg] = useState(String(goals.targetWeightKg));
   const [targetWaistIn, setTargetWaistIn] = useState(String(goals.targetWaistIn));
+  const [timezone, setTimezone] = useState(goals.timezone);
+
+  const timeZones = useMemo<string[]>(() => {
+    const fn = (Intl as { supportedValuesOf?: (key: string) => string[] })
+      .supportedValuesOf;
+    const list = fn ? fn("timeZone") : [];
+    return list.includes(goals.timezone) ? list : [goals.timezone, ...list];
+  }, [goals.timezone]);
 
   function run(fn: () => Promise<void>, ok: string) {
     startTransition(async () => {
@@ -48,6 +56,7 @@ export function GoalsDialog({ goals }: { goals: Goals }) {
     if (glasses > 0 && glasses !== goals.waterGlasses) updates.waterGlasses = glasses;
     if (weight > 0 && weight !== goals.targetWeightKg) updates.targetWeightKg = weight;
     if (waist > 0 && waist !== goals.targetWaistIn) updates.targetWaistIn = waist;
+    if (timezone && timezone !== goals.timezone) updates.timezone = timezone;
 
     if (Object.keys(updates).length === 0) {
       toast.error("No goal changes to save");
@@ -109,6 +118,22 @@ export function GoalsDialog({ goals }: { goals: Goals }) {
               onChange={(event) => setTargetWaistIn(event.target.value)}
               disabled={pending}
             />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="goal-timezone">Time zone</Label>
+            <select
+              id="goal-timezone"
+              value={timezone}
+              onChange={(event) => setTimezone(event.target.value)}
+              disabled={pending}
+              className="h-11 w-full rounded-md border border-input bg-transparent px-3 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-50 md:h-9 md:text-sm"
+            >
+              {timeZones.map((tz) => (
+                <option key={tz} value={tz}>
+                  {tz}
+                </option>
+              ))}
+            </select>
           </div>
           <DialogFooter>
             <Button type="submit" disabled={pending}>

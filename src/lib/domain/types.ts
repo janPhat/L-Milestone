@@ -23,6 +23,8 @@ export interface Goals {
   targetWeightKg: number;
   baselineWaistIn: number;
   targetWaistIn: number;
+  /** IANA time zone (e.g. "Asia/Bangkok") used for this user's day boundary. */
+  timezone: string;
 }
 
 export interface WaterEntry {

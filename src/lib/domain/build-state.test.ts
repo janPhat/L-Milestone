@@ -41,6 +41,7 @@ describe("buildTrackerState (D1 rows -> domain state)", () => {
           targetWeightKg: 55,
           baselineWaistIn: 31,
           targetWaistIn: 28,
+          timezone: "Asia/Bangkok",
         },
         hydration: [
           { date: today, amountMl: 750, presetName: "Bottle", beverageType: "water", effectiveMl: 750 },

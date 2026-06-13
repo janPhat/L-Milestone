@@ -12,6 +12,7 @@ interface GoalsRow {
   targetWeightKg: number;
   baselineWaistIn: number;
   targetWaistIn: number;
+  timezone: string;
 }
 interface HydrationRow {
   date: string;
@@ -60,6 +61,7 @@ export function buildTrackerState(rows: TrackerRows, today: string): TrackerStat
         targetWeightKg: rows.goals.targetWeightKg,
         baselineWaistIn: rows.goals.baselineWaistIn,
         targetWaistIn: rows.goals.targetWaistIn,
+        timezone: rows.goals.timezone,
       }
     : { ...DEFAULT_GOALS };
 

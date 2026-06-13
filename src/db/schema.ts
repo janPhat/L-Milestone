@@ -29,6 +29,7 @@ export const goals = sqliteTable("goals", {
   targetWeightKg: real("target_weight_kg").notNull().default(55),
   baselineWaistIn: real("baseline_waist_in").notNull().default(31),
   targetWaistIn: real("target_waist_in").notNull().default(28),
+  timezone: text("timezone").notNull().default("Asia/Bangkok"),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" })
     .notNull()
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)

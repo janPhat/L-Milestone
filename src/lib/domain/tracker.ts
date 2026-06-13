@@ -34,7 +34,16 @@ export const DEFAULT_GOALS: Goals = {
   targetWeightKg: 55,
   baselineWaistIn: 31,
   targetWaistIn: 28,
+  timezone: "Asia/Bangkok",
 };
+
+/**
+ * The local ISO date (YYYY-MM-DD) for an instant in a given IANA time zone.
+ * Pure + deterministic for a fixed instant — the basis for each user's "today".
+ */
+export function isoDateInTimeZone(instant: Date, timeZone: string): string {
+  return instant.toLocaleDateString("en-CA", { timeZone });
+}
 
 export const CALORIES_PER_MINUTE: Record<string, number> = {
   easy: 3.5,
@@ -179,14 +188,23 @@ export function addCheatLog(state: TrackerState, entry: AddCheatInput): TrackerS
   };
 }
 
-export function updateGoals(state: TrackerState, updates: Partial<Record<keyof Goals, number>>): TrackerState {
+// Only the numeric goal fields are bulk-updatable here (timezone is a string,
+// set via its own control), so key the updates to number-valued Goals keys.
+type NumericGoalKey = {
+  [K in keyof Goals]: Goals[K] extends number ? K : never;
+}[keyof Goals];
+
+export function updateGoals(
+  state: TrackerState,
+  updates: Partial<Record<NumericGoalKey, number>>,
+): TrackerState {
   const nextGoals = { ...state.goals };
 
   for (const [key, value] of Object.entries(updates)) {
     const numericValue = Number(value);
 
     if (Number.isFinite(numericValue) && numericValue > 0) {
-      nextGoals[key as keyof Goals] = numericValue;
+      nextGoals[key as NumericGoalKey] = numericValue;
     }
   }
 

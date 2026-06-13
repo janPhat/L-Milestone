@@ -1,0 +1,1 @@
+ALTER TABLE `goals` ADD `timezone` text DEFAULT 'Asia/Bangkok' NOT NULL;

@@ -13,6 +13,7 @@ import { requireUser } from "@/lib/dal";
 import { buildTrackerState } from "@/lib/domain/build-state";
 import {
   isBodyCheckDay,
+  isoDateInTimeZone,
   summarizeCalendar,
   summarizeDay,
   summarizeMovementWeek,
@@ -21,26 +22,31 @@ import {
 } from "@/lib/domain/tracker";
 import type { TrackerState } from "@/lib/domain/types";
 
-/**
- * The app's display timezone. L Health is invite-only / single-user, so the
- * day boundary and clock are pinned to Bangkok rather than UTC.
- */
-export const APP_TIMEZONE = "Asia/Bangkok";
+/** Day-boundary / clock time zone used when a user hasn't set their own. */
+export const DEFAULT_TIMEZONE = "Asia/Bangkok";
 
-/** Current calendar date in APP_TIMEZONE as an ISO YYYY-MM-DD string. */
-export function todayISO(): string {
-  // en-CA renders as YYYY-MM-DD.
-  return new Date().toLocaleDateString("en-CA", { timeZone: APP_TIMEZONE });
+/** Current calendar date (YYYY-MM-DD) in the given IANA time zone. */
+export function todayISO(timeZone: string = DEFAULT_TIMEZONE): string {
+  return isoDateInTimeZone(new Date(), timeZone);
 }
 
-/** Current local time as a 24-hour HH:mm string in APP_TIMEZONE. */
-export function nowTimeLabel(): string {
+/** Current local time as a 24-hour HH:mm string in the given time zone. */
+export function nowTimeLabel(timeZone: string = DEFAULT_TIMEZONE): string {
   return new Date().toLocaleTimeString("en-GB", {
-    timeZone: APP_TIMEZONE,
+    timeZone,
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
   });
+}
+
+/** The signed-in user's stored IANA time zone (DEFAULT_TIMEZONE if unset). */
+export async function userTimezone(db: Database, userId: string): Promise<string> {
+  const [row] = await db
+    .select({ timezone: goals.timezone })
+    .from(goals)
+    .where(eq(goals.userId, userId));
+  return row?.timezone ?? DEFAULT_TIMEZONE;
 }
 
 /** Loads every row for a user and assembles a TrackerState. */
@@ -67,7 +73,8 @@ export async function loadTrackerState(
 export async function getDashboardData() {
   const user = await requireUser();
   const db = await getDb();
-  const today = todayISO();
+  const timezone = await userTimezone(db, user.id);
+  const today = todayISO(timezone);
   const state = await loadTrackerState(db, user.id, today);
   const movementRows = await db
     .select({ date: movementDays.date, status: movementDays.status })
@@ -89,7 +96,7 @@ export async function getDashboardData() {
   return {
     user,
     today,
-    nowLabel: nowTimeLabel(),
+    nowLabel: nowTimeLabel(timezone),
     goals: state.goals,
     day: summarizeDay(state, today),
     milestones: summarizeWaterMilestones(state, today),

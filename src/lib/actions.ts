@@ -14,7 +14,7 @@ import {
 } from "@/db";
 import { requireUser } from "@/lib/dal";
 import { createHydrationEntry, nextMovementStatus } from "@/lib/domain/tracker";
-import { todayISO } from "@/lib/tracker-data";
+import { todayISO, userTimezone } from "@/lib/tracker-data";
 
 const isoDate = z
   .string()
@@ -70,6 +70,14 @@ const goalsSchema = z
     targetWeightKg: z.coerce.number().positive(),
     baselineWaistIn: z.coerce.number().positive(),
     targetWaistIn: z.coerce.number().positive(),
+    timezone: z.string().refine((tz) => {
+      try {
+        new Intl.DateTimeFormat("en-US", { timeZone: tz });
+        return true;
+      } catch {
+        return false;
+      }
+    }, "invalid IANA time zone"),
   })
   .partial()
   .refine((v) => Object.keys(v).length > 0, { message: "No goal fields to update" });
@@ -78,7 +86,8 @@ export async function addHydration(input: z.input<typeof hydrationSchema>) {
   const { date, amountML, beverageType, presetName } = hydrationSchema.parse(input);
   const user = await requireUser();
   const db = await getDb();
-  const entry = createHydrationEntry({ date: date ?? todayISO(), amountML, beverageType, presetName });
+  const day = date ?? todayISO(await userTimezone(db, user.id));
+  const entry = createHydrationEntry({ date: day, amountML, beverageType, presetName });
 
   await db.insert(hydrationEntries).values({
     userId: user.id,
@@ -93,9 +102,9 @@ export async function addHydration(input: z.input<typeof hydrationSchema>) {
 
 export async function completeMilestone(input: z.input<typeof milestoneSchema>) {
   const { date, glass } = milestoneSchema.parse(input);
-  const day = date ?? todayISO();
   const user = await requireUser();
   const db = await getDb();
+  const day = date ?? todayISO(await userTimezone(db, user.id));
 
   const [goalsRow] = await db.select().from(goals).where(eq(goals.userId, user.id));
   const glassMl = goalsRow?.glassMl ?? 250;
@@ -126,9 +135,9 @@ export async function completeMilestone(input: z.input<typeof milestoneSchema>) 
 // lets a tap un-fill as well as fill.
 export async function setWaterGlasses(input: z.input<typeof setGlassesSchema>) {
   const { date, glasses } = setGlassesSchema.parse(input);
-  const day = date ?? todayISO();
   const user = await requireUser();
   const db = await getDb();
+  const day = date ?? todayISO(await userTimezone(db, user.id));
 
   const [goalsRow] = await db.select().from(goals).where(eq(goals.userId, user.id));
   const glassMl = goalsRow?.glassMl ?? 250;
@@ -162,9 +171,9 @@ const movementSchema = z.object({ status: z.enum(["exercise", "smallWalk", "skip
 // change; re-tapping the active status clears it (delete), a new one overwrites.
 export async function setMovement(input: z.input<typeof movementSchema>) {
   const { status } = movementSchema.parse(input);
-  const day = todayISO();
   const user = await requireUser();
   const db = await getDb();
+  const day = todayISO(await userTimezone(db, user.id));
 
   const [row] = await db
     .select({ status: movementDays.status })
@@ -192,10 +201,11 @@ export async function addExercise(input: z.input<typeof exerciseSchema>) {
   const { date, minutes, intensity, label } = exerciseSchema.parse(input);
   const user = await requireUser();
   const db = await getDb();
+  const day = date ?? todayISO(await userTimezone(db, user.id));
 
   await db.insert(exerciseSessions).values({
     userId: user.id,
-    date: date ?? todayISO(),
+    date: day,
     minutes,
     intensity,
     label,
@@ -207,10 +217,11 @@ export async function logBody(input: z.input<typeof bodySchema>) {
   const { date, weightKg, waistIn } = bodySchema.parse(input);
   const user = await requireUser();
   const db = await getDb();
+  const day = date ?? todayISO(await userTimezone(db, user.id));
 
   await db.insert(bodyStats).values({
     userId: user.id,
-    date: date ?? todayISO(),
+    date: day,
     weightKg: weightKg ?? null,
     waistIn: waistIn ?? null,
   });
@@ -221,10 +232,11 @@ export async function addCheat(input: z.input<typeof cheatSchema>) {
   const { date, type, label } = cheatSchema.parse(input);
   const user = await requireUser();
   const db = await getDb();
+  const day = date ?? todayISO(await userTimezone(db, user.id));
 
   await db.insert(cheatLogs).values({
     userId: user.id,
-    date: date ?? todayISO(),
+    date: day,
     type,
     label,
   });
