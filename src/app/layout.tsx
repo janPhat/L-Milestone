@@ -18,8 +18,8 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={jakarta.variable}>
-      <body className="min-h-dvh bg-background text-foreground font-sans antialiased">
+    <html lang="en" className={`${jakarta.variable} overflow-x-clip`}>
+      <body className="min-h-dvh overflow-x-clip bg-background text-foreground font-sans antialiased">
         {children}
         <Toaster />
       </body>

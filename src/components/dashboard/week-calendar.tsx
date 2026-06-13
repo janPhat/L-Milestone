@@ -48,7 +48,7 @@ export function WeekCalendar({
               className={cn(
                 "flex flex-col items-center gap-1.5 rounded-md py-2",
                 day.date === today &&
-                  "bg-accent text-accent-foreground ring-1 ring-ring",
+                  "rounded-[360px] bg-card text-accent-foreground ring-1 ring-ring",
               )}
             >
               <span className="text-[10px] text-muted-foreground">

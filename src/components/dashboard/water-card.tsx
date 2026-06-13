@@ -42,7 +42,7 @@ export function WaterCard({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-0.5">
           {milestones.milestones.map((m) => (
             <button
               key={m.glass}
@@ -50,7 +50,7 @@ export function WaterCard({
               disabled={pending}
               aria-label={`Glass ${m.glass}`}
               title={`Glass ${m.glass}`}
-              className="rounded-full p-1 text-chart-1 transition-colors hover:text-chart-1/70 disabled:opacity-50"
+              className="flex min-w-0 flex-1 items-center justify-center rounded-full p-1 text-chart-1 transition-colors hover:text-chart-1/70 disabled:opacity-50"
               onClick={() =>
                 run(
                   () =>
@@ -63,7 +63,7 @@ export function WaterCard({
             >
               <svg
                 viewBox="0 0 24 24"
-                className="size-8"
+                className="aspect-square w-full max-w-8"
                 aria-hidden="true"
                 fill={m.complete ? "currentColor" : "none"}
                 stroke={m.complete ? "none" : "currentColor"}

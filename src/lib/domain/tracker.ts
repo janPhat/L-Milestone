@@ -18,6 +18,8 @@ import type {
   MilestoneInput,
   MovementDay,
   MovementStatus,
+  PerformancePeriod,
+  PerformanceSummary,
   TrackerState,
   WaterMilestonesSummary,
   WeekDaySummary,
@@ -302,6 +304,41 @@ export function summarizeMovementWeek(
 }
 
 /**
+ * Aggregates the performance dashboard's numbers over a Mon-Sun week or the
+ * full calendar month containing `today`: which days hit the water goal (for
+ * the hero strip), how many days had movement (exercise or small walk — skips
+ * never count), and how many cheats were logged in the window.
+ */
+export function summarizePerformance(
+  state: TrackerState,
+  movementRows: { date: string; status: string }[],
+  today: string,
+  period: PerformancePeriod,
+): PerformanceSummary {
+  const dates =
+    period === "weekly" ? daysInWeekStartingMonday(today) : daysInMonthOf(today);
+  const inWindow = new Set(dates);
+  const statusByDate = new Map(movementRows.map((row) => [row.date, row.status]));
+
+  const waterByDay = dates.map((date) => ({
+    date,
+    hit: hydrationTotalForDate(state, date) >= state.goals.waterML,
+  }));
+
+  return {
+    period,
+    totalDays: dates.length,
+    waterDaysHit: waterByDay.filter((day) => day.hit).length,
+    waterByDay,
+    exerciseDays: dates.filter((date) => {
+      const status = statusByDate.get(date);
+      return status === "exercise" || status === "smallWalk";
+    }).length,
+    cheats: (state.cheatLogs ?? []).filter((cheat) => inWindow.has(cheat.date)).length,
+  };
+}
+
+/**
  * Remaining distance from the current value (or the baseline, when nothing has
  * been logged yet) down to the target, rounded to one decimal and clamped at 0
  * once the target is reached. Powers the weekly body check's "X to reach
@@ -410,6 +447,17 @@ function daysEndingOn(date: string, count: number): string[] {
     current.setUTCDate(endDate.getUTCDate() - (count - 1 - index));
     return current.toISOString().slice(0, 10);
   });
+}
+
+function daysInMonthOf(date: string): string[] {
+  const year = Number(date.slice(0, 4));
+  const month = Number(date.slice(5, 7));
+  // Day 0 of the next month = last day of this month.
+  const count = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  return Array.from(
+    { length: count },
+    (_, index) => `${date.slice(0, 7)}-${String(index + 1).padStart(2, "0")}`,
+  );
 }
 
 function daysInWeekStartingMonday(date: string): string[] {

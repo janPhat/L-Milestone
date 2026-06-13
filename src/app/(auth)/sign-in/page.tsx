@@ -62,13 +62,13 @@ function SignInForm() {
             />
           </div>
         </CardContent>
-        <CardFooter className="mt-6 flex-col gap-3">
+        <CardFooter className="mt-6 flex-col gap-4">
           <Button type="submit" className="w-full" disabled={pending}>
             {pending ? "Signing in…" : "Sign in"}
           </Button>
           <p className="text-sm text-muted-foreground">
             No account yet?{" "}
-            <Link href="/sign-up" className="underline">
+            <Link href="/sign-up" className="inline-block py-2 underline">
               Sign up
             </Link>
           </p>

@@ -109,7 +109,7 @@ export function WeeklyBodyCheckCard({
           type="button"
           aria-label="Dismiss until next Monday"
           onClick={hideForThisMonday}
-          className="-mt-1 -mr-1 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
+          className="-mt-3 -mr-3 rounded-md p-3 text-muted-foreground transition-colors hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
         >
           <X className="size-4" />
         </button>
@@ -134,7 +134,7 @@ export function WeeklyBodyCheckCard({
               </div>
               <p
                 className={cn(
-                  "text-xs tabular-nums",
+                  "min-h-8 text-xs tabular-nums",
                   weightToTarget === 0 ? "text-emerald-600" : "text-muted-foreground",
                 )}
               >
@@ -158,7 +158,7 @@ export function WeeklyBodyCheckCard({
               </div>
               <p
                 className={cn(
-                  "text-xs tabular-nums",
+                  "min-h-8 text-xs tabular-nums",
                   waistToTarget === 0 ? "text-emerald-600" : "text-muted-foreground",
                 )}
               >

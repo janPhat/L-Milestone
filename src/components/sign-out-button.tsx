@@ -9,7 +9,8 @@ export function SignOutButton() {
 
   return (
     <Button
-      variant="outline"
+      variant="secondary"
+      className="bg-foreground text-white hover:bg-foreground/80"
       onClick={async () => {
         await authClient.signOut();
         router.push("/sign-in");

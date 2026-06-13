@@ -223,6 +223,44 @@ describe("tracker domain", () => {
     expect(week.filter((d) => d.isToday).map((d) => d.date)).toEqual(["2026-06-12"]);
   });
 
+  test("performance summary > weekly (Mon-Sun) and monthly windows aggregate water, exercise and cheats", () => {
+    let state = createTrackerState({ today: "2026-06-12", goals: { waterML: 1_000 } });
+    state = addWater(state, { date: "2026-06-08", amountML: 1_000 }); // Mon — hit
+    state = addWater(state, { date: "2026-06-10", amountML: 500 }); // Wed — partial
+    state = addWater(state, { date: "2026-06-12", amountML: 1_200 }); // Fri — hit
+    state = addWater(state, { date: "2026-06-01", amountML: 1_000 }); // month only
+    state = addWater(state, { date: "2026-05-31", amountML: 1_000 }); // outside month
+    state = tracker.addCheatLog(state, { date: "2026-06-09", type: "meal", label: "Pizza" });
+    state = tracker.addCheatLog(state, { date: "2026-06-02", type: "drink", label: "Soda" }); // month only
+    const movement = [
+      { date: "2026-06-08", status: "exercise" },
+      { date: "2026-06-09", status: "smallWalk" },
+      { date: "2026-06-10", status: "skip" }, // skips never count as exercise
+      { date: "2026-06-03", status: "exercise" }, // month only
+    ];
+
+    const weekly = tracker.summarizePerformance(state, movement, "2026-06-12", "weekly");
+    expect(weekly.totalDays).toBe(7);
+    expect(weekly.waterByDay.map((d) => d.date)).toEqual([
+      "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11",
+      "2026-06-12", "2026-06-13", "2026-06-14",
+    ]);
+    expect(weekly.waterByDay.map((d) => d.hit)).toEqual([
+      true, false, false, false, true, false, false,
+    ]);
+    expect(weekly.waterDaysHit).toBe(2);
+    expect(weekly.exerciseDays).toBe(2);
+    expect(weekly.cheats).toBe(1);
+
+    const monthly = tracker.summarizePerformance(state, movement, "2026-06-12", "monthly");
+    expect(monthly.totalDays).toBe(30);
+    expect(monthly.waterByDay[0].date).toBe("2026-06-01");
+    expect(monthly.waterByDay[29].date).toBe("2026-06-30");
+    expect(monthly.waterDaysHit).toBe(3);
+    expect(monthly.exerciseDays).toBe(3);
+    expect(monthly.cheats).toBe(2);
+  });
+
   test("body check day > true only on the Monday of the week", () => {
     expect(tracker.isBodyCheckDay("2026-06-08")).toBe(true); // Monday
     expect(tracker.isBodyCheckDay("2026-06-12")).toBe(false); // Friday

@@ -72,7 +72,7 @@ export function ExerciseCard({ movement }: { movement: MovementDay[] }) {
               aria-pressed={todayStatus === opt.status}
               onClick={() => set(opt.status)}
               className={cn(
-                "flex-1 rounded-md px-2 py-1.5 text-sm text-black transition-colors disabled:opacity-50",
+                "flex min-h-10 flex-1 items-center justify-center whitespace-nowrap rounded-md px-1.5 text-xs text-black transition-colors disabled:opacity-50 xs:text-sm",
                 opt.faded,
                 todayStatus === opt.status && "font-medium",
               )}

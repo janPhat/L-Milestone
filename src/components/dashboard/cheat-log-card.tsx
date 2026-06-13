@@ -101,15 +101,15 @@ export function CheatLogCard({ cheats }: { cheats: CheatRow[] }) {
                     <Badge
                       key={cheat.id}
                       variant="outline"
-                      className="border-ring text-ring text-sm gap-1 pr-1"
+                      className="border-ring text-ring text-sm gap-1 max-w-full min-w-0 shrink whitespace-normal"
                     >
-                      {cheat.label}
+                      <span className="min-w-0 break-words">{cheat.label}</span>
                       <button
                         type="button"
                         aria-label={`Remove ${cheat.label}`}
                         disabled={pending}
                         onClick={() => remove(cheat.id)}
-                        className="rounded-full p-0.5 text-ring/70 transition-colors hover:bg-ring/10 hover:text-ring focus-visible:ring-[2px] focus-visible:ring-ring/50 focus-visible:outline-none disabled:opacity-50"
+                        className="-my-0.5 -mr-1 flex size-6 shrink-0 items-center justify-center rounded-full text-ring/70 transition-colors hover:bg-ring/10 hover:text-ring focus-visible:ring-[2px] focus-visible:ring-ring/50 focus-visible:outline-none disabled:opacity-50"
                       >
                         <X className="size-3" />
                       </button>
@@ -142,7 +142,7 @@ export function CheatLogCard({ cheats }: { cheats: CheatRow[] }) {
                   value={type}
                   onValueChange={(value) => setType(value as CheatType)}
                 >
-                  <SelectTrigger id="cheat-type">
+                  <SelectTrigger id="cheat-type" className="w-full">
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>

@@ -3,7 +3,7 @@ import { SignOutButton } from "@/components/sign-out-button";
 import { WaterCard } from "@/components/dashboard/water-card";
 import { ExerciseCard } from "@/components/dashboard/exercise-card";
 import { WeeklyBodyCheckCard } from "@/components/dashboard/weekly-body-check-card";
-import { WeeklyChart } from "@/components/dashboard/weekly-chart";
+import { PerformanceCard } from "@/components/dashboard/performance-card";
 import { WeekCalendar } from "@/components/dashboard/week-calendar";
 import { CheatLogCard } from "@/components/dashboard/cheat-log-card";
 import { GoalsDialog } from "@/components/dashboard/goals-dialog";
@@ -18,7 +18,7 @@ export default async function DashboardPage() {
     day,
     goals,
     milestones,
-    week,
+    performance,
     calendar,
     movement,
     bodyCheckDay,
@@ -40,12 +40,14 @@ export default async function DashboardPage() {
       />
       <WaterCard milestones={milestones} />
       <ExerciseCard movement={movement} />
-      <WeeklyChart week={week} goals={goals} />
       <CheatLogCard cheats={cheats} />
+      <PerformanceCard weekly={performance.weekly} monthly={performance.monthly} />
 
-      <div className="flex items-center justify-between pt-2">
-        <span className="text-xs text-muted-foreground">{user.email}</span>
-        <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-3 pt-2">
+        <span className="min-w-0 truncate text-xs text-muted-foreground">
+          {user.email}
+        </span>
+        <div className="flex shrink-0 items-center gap-2">
           <GoalsDialog goals={goals} />
           <SignOutButton />
         </div>

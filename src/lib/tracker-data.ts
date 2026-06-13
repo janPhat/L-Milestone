@@ -16,8 +16,8 @@ import {
   summarizeCalendar,
   summarizeDay,
   summarizeMovementWeek,
+  summarizePerformance,
   summarizeWaterMilestones,
-  summarizeWeek,
 } from "@/lib/domain/tracker";
 import type { TrackerState } from "@/lib/domain/types";
 
@@ -92,8 +92,12 @@ export async function getDashboardData() {
     nowLabel: nowTimeLabel(),
     goals: state.goals,
     day: summarizeDay(state, today),
-    week: summarizeWeek(state, today),
     milestones: summarizeWaterMilestones(state, today),
+    // Both windows are precomputed so the card's toggle flips instantly client-side.
+    performance: {
+      weekly: summarizePerformance(state, movementRows, today, "weekly"),
+      monthly: summarizePerformance(state, movementRows, today, "monthly"),
+    },
     calendar,
     movement: summarizeMovementWeek(movementRows, today),
     bodyCheckDay: isBodyCheckDay(today),
