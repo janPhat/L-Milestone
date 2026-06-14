@@ -47,7 +47,13 @@ Set once as **Worker secrets** (persist across deploys; not in any pipeline):
 
 - `BETTER_AUTH_SECRET` — session/cookie signing secret.
 - `BETTER_AUTH_URL` — public origin (production Worker URL).
-- `INVITE_CODE` — invite-only sign-up gate.
+- `INVITE_CODE` — *optional* master/break-glass sign-up code. The primary gate is the
+  per-person `invites` table (codes minted from the dashboard, single-use, revocable);
+  leave `INVITE_CODE` unset to require a per-person code for every sign-up.
+- `RESEND_API_KEY` — Resend API key for transactional email (password reset + verification).
+- `RESEND_FROM` — *optional* sender, e.g. `L Health <noreply@yourdomain>`. Defaults to
+  `onboarding@resend.dev`, which only delivers to the Resend account owner until you verify
+  a sending domain (see backlog issue: "Verify a Resend sending domain").
 
 `wrangler secret put <NAME>`. Local dev reads the same names from `.dev.vars` (gitignored).
 

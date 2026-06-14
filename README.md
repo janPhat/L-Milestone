@@ -45,7 +45,7 @@ npm run preview   # build + run the real Worker locally (workerd); use before de
 
 ## Project structure
 
-- `src/app/` — routes: `/`, `/sign-in`, `/sign-up`, `/dashboard`, `/api/auth/[...all]`
+- `src/app/` — routes: `/`, `/sign-in`, `/sign-up`, `/forgot-password`, `/reset-password`, `/dashboard`, `/privacy`, `/api/auth/[...all]`, `/api/export`
 - `src/lib/domain/` — pure tracker logic (ported, unit-tested) + summaries
 - `src/lib/actions.ts` — server actions (zod-validated, user-scoped writes)
 - `src/lib/tracker-data.ts` — D1 read path → domain summaries for the dashboard
